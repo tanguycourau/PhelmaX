@@ -12,13 +12,15 @@
 
     LINKED_LIST GeoCell GeoAss GeoBis      ! Geometries considerees 
                 NXTTracking SYBILTrk       ! Tracking pour les lignes d'integration
-	        XSLib XSLibAutop           ! XS par milieu
-	        Pij Flx ;                  ! Pij et Flux
-		 
+                XSLib XSLibAutop           ! XS par milieu
+                Pij Flx Edition ;          ! Pij, Flux et Edition
+                 
    SEQ_BINARY Lignes ;                     ! Binaire pour les segments d'integration
    SEQ_ASCII Fig1 :: FILE 'Fig1.ps' ;
    SEQ_ASCII Fig2 :: FILE 'Fig2.ps' ;
-   SEQ_ASCII Fig3 :: FILE 'Fig3.ps' ;    ! Nom fichier figure
+   SEQ_ASCII Fig3 :: FILE 'Fig3.ps' ;      ! Nom fichier figure
+   SEQ_ASCII Edit :: FILE './edit' ;       ! Fichier de sortie pour Edition
+   
 
 
    PROCEDURE GeoCellule Geometries         ! Fonction pour la construction des geometries
@@ -26,19 +28,19 @@
 
 
    MODULE GEO: PSP: END: NXT: ASM: FLU: DELETE: USS: 
-          SYBILT:        ;                 ! GEO pour la construction de la geo
-	                                   ! PSP pour l'edition de figure
-					   ! NXT pour le tracking
-					   ! ASM pour le calcul des Pij
-					   ! FLU pour la resolution du transport
-					   ! USS pour l'autoprotection
-					   ! SYBILT pour le tracking de l'autop
-
+          SYBILT: EDI:   ;                 ! GEO pour la construction de la geo
+                                           ! PSP pour l'edition de figure
+                                           ! NXT pour le tracking
+                                           ! ASM pour le calcul des Pij
+                                           ! FLU pour la resolution du transport
+                                           ! USS pour l'autoprotection
+                                           ! SYBILT pour le tracking de l'autop
+                                           ! EDI pour l'edition 
 
 *---------------------------------------------------------------------------
 * Definition des variables
 *---------------------------------------------------------------------------
-    STRING Library := "L295b7r1" ;         ! Pour les donnees nucleaire
+    STRING Library := "L99j3p1" ;         ! Pour les donnees nucleaire
     REAL Enri      := 3.25E-2    ;
     REAL ppmB      := 650.0        ;
 
@@ -67,7 +69,10 @@
     ECHO "Calcul Pij OK" ; 
 
     Flx := FLU: Pij XSLibAutop NXTTracking :: TYPE B B1 SIGS ; 
-    ECHO "Calcul Flux OK" ; 
+    ECHO "Calcul Flux OK" ;
+    Edition := EDI: Flx XSLibAutop NXTTracking :: EDIT 0
+    MERG COMP COND NONE SAVE ;
+    Edit := Edition ;
 
 *---------------------------------------------------------------------------
 * Visualisation des Geometries

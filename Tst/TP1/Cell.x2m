@@ -13,30 +13,31 @@
    LINKED_LIST GeoCell                    ! Geometrie consideree
                 NXTTracking SYBILTrk  MOCTracking     ! Tracking pour les lignes d'integration
 		XSLib XSLibAutop           ! XS par milieu
-	        Pij Flx ;                  ! Pij et Flux
+	        Pij Flx Edition ;          ! Pij, Flux et Edition
 		 
    SEQ_BINARY Lignes  ;                    ! Binaire pour les segments d'integration
    SEQ_ASCII ImgGeo :: FILE 'Fig1.ps' ;
    SEQ_ASCII ImgGeo2 :: FILE 'Fig2.ps' ;   ! Nom fichiers figure
+   SEQ_ASCII Edit :: FILE './edit' ;       ! Fichier de sortie pour Edition
   
    PROCEDURE GeoCellule                    ! Fonction pour la construction de la cellule
              MixFuelCell ;                 ! Fonction pour la definition des materiaux
 
 
    MODULE GEO: PSP: END: NXT: ASM: FLU: DELETE: USS: 
-          SYBILT:   ;                      ! GEO pour la construction de la geo
+          SYBILT: EDI:  ;                  ! GEO pour la construction de la geo
 	                                   ! PSP pour l'edition de figure
 					   ! NXT pour le tracking
 					   ! ASM pour le calcul des Pij
 					   ! FLU pour la resolution du transport
 					   ! USS pour l'autoprotection
 					   ! SYBILT pour le tracking de l'autop
-
+                                           ! EDI pour l'edition des sorties 
 
 *---------------------------------------------------------------------------
 * Definition des variables
 *---------------------------------------------------------------------------
-    STRING Library := "L295b7r1" ;         ! Pour les donnees nucleaire
+    STRING Library := "L99j3p1" ;         ! Pour les donnees nucleaire
     REAL Enri      := 3.25E-2    ;
     REAL ppmB      := 0.0        ;
 
@@ -68,7 +69,11 @@
     Pij := ASM: XSLibAutop NXTTracking Lignes :: EDIT 0 ; 
     ECHO "Calcul Pij OK" ; 
     Flx := FLU: Pij XSLibAutop NXTTracking :: TYPE B B1 SIGS ; 
-    
+
+    Edition := EDI: Flx XSLibAutop NXTTracking :: EDIT 0
+    MERG COMP COND NONE SAVE ;
+    Edit := Edition ;
+
     Pij := DELETE: Pij ;
     SYBILTrk := DELETE: SYBILTrk ; 
     Lignes := DELETE: Lignes ;

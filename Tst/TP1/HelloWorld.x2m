@@ -8,7 +8,7 @@
 
 MODULE END: ;
 
-REAL A := 2 ;
+REAL A := 2. ;
 REAL B C ;
 EVALUATE B := 2.0 ;
 EVALUATE C := 4.0 ;
