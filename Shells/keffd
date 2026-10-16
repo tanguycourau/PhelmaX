@@ -1,0 +1,12 @@
+if [ $# = 1 ]
+then
+  Filename=$1
+
+else
+  echo  "Please provide DRAGON filename+"
+  exit 1
+fi
+grep -E "FINAL KEFF" $Filename
+
+
+

@@ -1,0 +1,63 @@
+*---------------------------------------------------------------------------
+*
+* Illustration des Geometrie avec le module GEO:
+*
+*---------------------------------------------------------------------------
+
+
+*---------------------------------------------------------------------------
+* Declaration des objets, des fichiers et des procedures
+*---------------------------------------------------------------------------
+
+    LINKED_LIST GEOMETRY1 GEOMETRY2 GEOMETRY3 ;     ! Les objets qui définissent les geometries
+    
+    SEQ_ASCII ImgGeo1 :: FILE 'Fig1.ps' ;
+    SEQ_ASCII ImgGeo2 :: FILE 'Fig2.ps' ; 
+    SEQ_ASCII ImgGeo3 :: FILE 'Fig3.ps' ; ! Nom fichiers des figures
+
+    MODULE GEO:                           ! Pour construire les geometries 
+           PSP:                           ! Pour generer l'image au format PS.
+           END: ;
+
+
+*---------------------------------------------------------------------------
+* Definission des rayons
+*---------------------------------------------------------------------------
+
+    REAL R4 := 0.40958 ;
+    REAL R1 := R4 0.5 SQRT * ;
+    REAL R2 := R4 0.8 SQRT * ;
+    REAL R3 := R4 0.95 SQRT * ;
+    REAL RG := 0.4798 ; 
+
+*---------------------------------------------------------------------------
+* Construction des geometrie
+*---------------------------------------------------------------------------
+    
+    GEOMETRY1 := GEO: :: CARCEL 2
+                         X- REFL X+ REFL MESHX 0.0 1.26472
+                         Y- REFL Y+ REFL MESHY 0.0 1.26472
+                         RADIUS 0.0 <<R4>> <<RG>> 0.625
+                         MIX 1 2 3 3 ;
+
+    GEOMETRY2 := GEO: :: CAR2D 1 1
+                         X- REFL X+ REFL MESHX 0.0 1.26472
+                         Y- REFL Y+ REFL MESHY 0.0 1.26472
+                         MIX 1 ;
+
+    GeoCell := GEO: :: CARCEL 6
+                       X- REFL X+ REFL MESHX 0.0 1.26472
+                       Y- REFL Y+ REFL MESHY 0.0 1.26472
+                       RADIUS 0.0  <<R1>> <<R2>> <<R3>> <<R4>> <<RG>> 0.625
+                       MIX 1 2 3 4 5 6 6 ;
+
+*---------------------------------------------------------------------------
+* Visualisation des geom
+*---------------------------------------------------------------------------
+
+    ImGeo1 := PSP: GEOMETRY1 :: TYPE MIXTURE ;
+    ImGeo2 := PSP: GEOMETRY2 :: TYPE MIXTURE ;
+    ImGeo3 := PSP: GEOMETRY2 :: TYPE MIXTURE ;
+    
+
+    END: ;

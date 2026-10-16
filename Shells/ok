@@ -1,0 +1,17 @@
+if [ $# = 1 ]
+then
+  Name=$1
+#  echo "$Name"
+else
+  echo  "Please provide DRAGON filename+"
+  exit 1
+fi
+
+grep -i "NORMAL END"  $Name
+grep -i "KERNEL ERROR"  $Name
+grep -i "ABORT"  $Name
+grep -n -i "WARNING" $Name
+grep -n -i "PROBLEM" $Name
+grep -n -i "DOES NOT EXIST" $Name
+grep -n -E "\w;|';|:;" ${Name%%+} && echo File ${Name%%+} ': PROBLEM WITH ; WITHOUT BLANK'
+grep -n --perl-regex '\t' ${Name%%+} && echo File ${Name%%+} ': TAB CHAR FOUND'

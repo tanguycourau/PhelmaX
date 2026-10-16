@@ -1,0 +1,20 @@
+*---------------------------------------------------------------------------
+*
+* Illustration d'un code DRAGON
+*
+* HelloWorld sous condition...
+*
+*---------------------------------------------------------------------------
+
+MODULE END: ;
+
+REAL A := 2 ;
+REAL B C ;
+EVALUATE B := 2.0 ;
+EVALUATE C := 4.0 ;
+
+IF A B * C = THEN
+    ECHO "Hello World" ;
+ENDIF ;
+
+END: ;
