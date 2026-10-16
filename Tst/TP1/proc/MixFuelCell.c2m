@@ -19,7 +19,7 @@ REAL ppmB ;
 *----
 *  Modules
 *----
-MODULE  LIB: END: UTL: ;
+MODULE  LIB: END: UTL: INFO: ;
 
 *----
 *  Parametres
@@ -106,11 +106,28 @@ XSLib := LIB: ::
     Hf178 = Hf178    6.03806E-7 
     Hf179 = Hf179    3.01460E-7 
   MIX 6 <<ModTemp>> <<ModDens>>
-    H1H2O  = H1_H2O    <<N_HH2O>> NOEV 
+    H1H2O  = H1_H2O    <<N_HH2O>> NOEV
     O16H2O = O16       <<N_OH2O>> NOEV
     B10 = B10          <<N_B10H2O>>  NOEV 
     B11 = B11          <<N_B11H2O>>  NOEV 
 ;
 
+* Calcul des propriétés des matériaux
+REAL densmod mh1 mo16  wgtu5 wgtu8 wgtox  ;
+INFO: ::
+TMP: <<ModTemp>> K
+PUR: 0.0   WGT%
+CALC DENS WATER >>densmod<<  
+LIB:  DRAGON FIL: <<Library>> 
+ISO: 2    H1_H2O    O16    
+GET MASS  >>mh1<<  >>mo16<<  ;
+
+INFO: ::  ENR: <<Enri>> WGT%
+          LIB:  DRAGON FIL: <<Library>>
+          ISO: 3  U235 U238 O16  
+          CALC WGT% UO2 >>wgtu5<<  >>wgtu8<< >>wgtox<< ;
+
+ECHO "dmod mh1 mo16 wgtu5 wgtu8 wgtoc = " densmod mh1 mo16
+                                          wgtu5 wgtu8 wgtox ;
 END: ;
 QUIT "LIST" .

@@ -15,7 +15,7 @@
 		XSLib XSLibAutop           ! XS par milieu
 	        Pij Flx                    ! Pij et Flux
 		SystemeMOC FluxMOC ;
-		 
+                 
    SEQ_BINARY Lignes LignesMOC ;                    ! Binaire pour les segments d'integration
    SEQ_ASCII ImgGeo :: FILE 'Fig1.ps' ;
    SEQ_ASCII ImgGeo2 :: FILE 'Fig2.ps' ;   ! Nom fichiers figure
@@ -26,18 +26,18 @@
 
    MODULE GEO: PSP: END: NXT: ASM: FLU: DELETE: USS: MCCGT: 
           SYBILT:   ;                      ! GEO pour la construction de la geo
-	                                   ! PSP pour l'edition de figure
-					   ! NXT pour le tracking
-					   ! ASM pour le calcul des Pij
-					   ! FLU pour la resolution du transport
-					   ! USS pour l'autoprotection
-					   ! SYBILT pour le tracking de l'autop
+                                           ! PSP pour l'edition de figure
+                                           ! NXT pour le tracking
+                                           ! ASM pour le calcul des Pij
+                                           ! FLU pour la resolution du transport
+                                           ! USS pour l'autoprotection
+                                           ! SYBILT pour le tracking de l'autop
 
 
 *---------------------------------------------------------------------------
 * Definition des variables
 *---------------------------------------------------------------------------
-    STRING Library := "L295b7r1" ;         ! Pour les donnees nucleaire
+    STRING Library := "L99j3p1" ;         ! Pour les donnees nucleaire
     REAL Enri      := 3.25E-2    ;
     REAL ppmB      := 0.0        ;
 
@@ -55,14 +55,14 @@
 * Tracking Calcul Pij et Calcul Flux 
 *---------------------------------------------------------------------------
     NXTTracking Lignes := NXT: GeoCell :: EDIT 0 
-    	                                  LONG
+                                          LONG
                                           TISO 7 75.0  ;
     SYBILTrk := SYBILT: GeoCell :: EDIT 0 DP01 MAXR 500 MAXZ 1000000 ; 
     ECHO "Calcul Tracking OK" ; 
 
     * ImgGeo2 := PSP: NXTTracking :: EDIT 1
     *                              TYPE MIXTURE ;
-					  
+                                          
     XSLibAutop := USS: XSLib SYBILTrk :: EDIT 0 PASS 3 MAXST 100 ; 
     ECHO "Calcul Autop OK" ;
 
@@ -77,14 +77,16 @@
     * Calcul MOC
     * ------
     MOCTracking LignesMOC := NXT: GeoCell :: EDIT 0 
-    					    LONG
-    					    TISO 7 75.0  ;  
+                                            LONG
+                                            TISO 7 75.0  ;  
     MOCTracking := MCCGT: MOCTracking LignesMOC GeoCell :: EDIT 0 ;
     SystemeMOC := ASM: XSLibAutop MOCTracking LignesMOC :: EDIT 0 ARM ; 
-    	     ! ARM pour dire qu'il n'est pas necessaire de calculer la matrice Pij
-    FluxMOC := FLU: XSLibAutop MOCTracking SystemeMOC Lignes :: TYPE B B1 SIGS ;
+    ! ARM pour dire qu'il n'est pas necessaire de calculer la matrice Pij
+    FluxMOC := FLU: XSLibAutop MOCTracking SystemeMOC Lignes ::
+               TYPE B B1 SIGS ;
     ECHO "Calcul Flux MOC OK" ; 
-    
+
+
     
     Pij := DELETE: Pij ;
     SYBILTrk := DELETE: SYBILTrk ; 
