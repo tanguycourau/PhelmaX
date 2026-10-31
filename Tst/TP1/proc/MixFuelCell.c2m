@@ -151,7 +151,7 @@ CALC DENS WATER >>modDens<<
 LIB:  DRAGON FIL: <<Library>> ;
 
 
-ECHO "Proprietess =" n_U5 n_U8 n_U16 m_H1H2O m_O16 m_B10 m_B11 modDens ;
+ECHO "Proprietess =" n_U5 n_U8 n_O16 m_H1H2O m_O16 m_B10 m_B11 modDens ;
 
 REAL m_H2O  := m_H1H2O 2.0 * m_O16 + ;
 REAL m_Bore := pct_B10 m_B10 * pct_B11 m_B11 * + ;
@@ -170,8 +170,8 @@ XSLIB := LIB: ::
    MIXS LIB: DRAGON FIL: <<Library>>
    MIX 1 <<FuelTemp>> <<FuelDens>>
     U235    = U235        <<n_U5>>  1  
-    U238    = U238        <<N_U8>>  1
-    O16     = O16         <<N_O16>> 
+    U238    = U238        <<n_U8>>  1
+    O16     = O16         <<n_O16>> 
    MIX 2 COMB 1 1.0
    MIX 3 COMB 1 1.0
    MIX 4 COMB 1 1.0
