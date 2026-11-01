@@ -210,11 +210,13 @@ XSLIB := LIB: ::
     Hf178 = Hf178    6.03806E-7
     Hf179 = Hf179    3.01460E-7
   MIX 6 <<ModTemp>> <<ModDens>>
-    H1H2O  = H1_H2O    <<n_HH2O>> NOEV
-    O16H2O = O16       <<n_OH2O>> NOEV
-    B10 = B10          <<n_B10H2O>>  NOEV
-    B11 = B11          <<n_B11H2O>>  NOEV
+    H1H2O  = H1_H2O 0.11184249704653758     NOEV
+    O16H2O = O16    0.8875079251790159       NOEV
+    B10 = B10       0.00011972356621939667   NOEV
+    B11 = B11       0.0005298542082271226    NOEV
 ;
+
+
 
 END: ;
 QUIT "LIST" .
