@@ -121,14 +121,16 @@ XSLib := LIB: ::
 
 
 * Calcul des propriétés des matériaux
-
+REAL Enrich := Enri 100.0 * ;
 * Fractions massiques U5 et U8
-REAL n_U5 n_U8 n_O16 ;
-INFO: ::  ENR: <<Enri>> WGT%
+REAL n_U5 n_U8 n_O16 m_U5 m_U8 ;
+INFO: ::  ENR: <<Enrich>> WGT%
           LIB:  DRAGON FIL: <<Library>>
           ISO: 3  U235 U238 O16  
-          CALC WGT% UO2 >>n_U5<<  >>n_U8<< >>n_O16<< ;
-
+          CALC WGT% UO2 >>n_U5<<  >>n_U8<< >>n_O16<<
+	  LIB:  DRAGON FIL: <<Library>> 
+	  ISO: 2    U235    U238   
+	  GET MASS  >>m_U5<< >>m_U8<<  ;
 * Masses atomiques (par groupe de 3 au max)
 * Lecture des masses de l'H et de l'O 
 REAL  m_H1H2O m_O16 m_B10 m_B11 ;     
@@ -150,8 +152,8 @@ PUR: 0.0   WGT%
 CALC DENS WATER >>modDens<<  
 LIB:  DRAGON FIL: <<Library>> ;
 
-
-ECHO "Proprietess =" n_U5 n_U8 n_O16 m_H1H2O m_O16 m_B10 m_B11 modDens ;
+ECHO "Prop = n_U5 n_U8 n_O16 m_H1H2O m_O16 m_U5 m_U8 m_B10 m_B11 modDens" ;
+ECHO "Proprietes =" n_U5 n_U8 n_O16 m_H1H2O m_O16 m_U5 m_U8 m_B10 m_B11 modDens ;
 
 REAL m_H2O  := m_H1H2O 2.0 * m_O16 + ;
 REAL m_Bore := pct_B10 m_B10 * pct_B11 m_B11 * + ;
