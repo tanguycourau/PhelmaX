@@ -4,9 +4,9 @@
 *
 *  Output data  :
 *    XSLib   : Microlib with table of probabilities
-*    
+*
 *----
-PARAMETER XSLib ::  
+PARAMETER XSLib ::
 ::: LINKED_LIST XSLib ; ;
 
 STRING Library ;
@@ -37,24 +37,27 @@ REAL ModDens  := 0.7 ;
 *----
 *  Calcul des pourcentages massiques
 *----
-REAL M_U5          M_U8   := 
+REAL M_U5          M_U8   :=
      235.043929918 238.050788247  ;
 REAL M_O16          :=  15.99491461956 ;
-REAL M_B10          M_B11          M_H1H2O      := 
+REAL M_B10          M_B11          M_H1H2O      :=
      10.012936949   11.009305355   1.0078250    ;
-REAL pct_B10          pct_B11 := 
+REAL pct_B10          pct_B11 :=
      0.1990           0.8010  ;
 
-ECHO " Enrichissement = " Enri ; 
-ECHO " ppmB = " ppmB ; 
+ECHO " Enrichissement = " Enri ;
+ECHO " ppmB = " ppmB ;
+
+* Ajout pour estimer correctement la fraction de bore
+REAL ppmb := ppmB 1.0E-6 * ;
 
 REAL M_H2O  := M_H1H2O 2.0 * M_O16 + ;
 REAL M_Bore := pct_B10 M_B10 * pct_B11 M_B11 * + ;
-REAL M_Mod  := M_Bore ppmB * M_H2O + ;
-REAL N_HH2O := 2.0 M_H1H2O * M_Mod / ; 
+REAL M_Mod  := M_Bore ppmb * M_H2O + ;
+REAL N_HH2O := 2.0 M_H1H2O * M_Mod / ;
 REAL N_OH2O := M_O16 M_Mod / ;
-REAL N_B10H2O := ppmB pct_B10 * M_B10 * M_Mod / ; 
-REAL N_B11H2O := ppmB pct_B11 * M_B11 * M_Mod / ;
+REAL N_B10H2O := ppmb pct_B10 * M_B10 * M_Mod / ;
+REAL N_B11H2O := ppmb pct_B11 * M_B11 * M_Mod / ;
 
 REAL M_U   := 1.0 Enri - M_U8 * Enri M_U5 * + ;
 REAL M_tot := 2.0 M_O16 * M_U + ;
@@ -66,21 +69,21 @@ ECHO "N U5 = " N_U5 ;
 ECHO "N U8 = " N_U8 ;
 ECHO "N O16 = " N_O16 ;
 
-XSLib := LIB: :: 
+XSLib := LIB: ::
    EDIT 1
    NMIX 6 CTRA APOL
-   SUBG 
+   SUBG
    DEPL LIB: DRAGON FIL: <<Library>>
    MIXS LIB: DRAGON FIL: <<Library>>
    MIX 1 <<FuelTemp>> <<FuelDens>>
-    U235    = U235        <<N_U5>>  1  
+    U235    = U235        <<N_U5>>  1
     U238    = U238        <<N_U8>>  1
-    O16     = O16         <<N_O16>> 
+    O16     = O16         <<N_O16>>
    MIX 2 COMB 1 1.0
    MIX 3 COMB 1 1.0
    MIX 4 COMB 1 1.0
-   MIX 5 <<CladTemp>> 
-    Cr50 = Cr50      3.30121E-6 
+   MIX 5 <<CladTemp>>
+    Cr50 = Cr50      3.30121E-6
     Cr52 = Cr52      6.36606E-5
     Cr53 = Cr53      7.21860E-6
     Cr54 = Cr54      1.79686E-6
@@ -88,11 +91,11 @@ XSLib := LIB: ::
     Fe56 = Fe56      1.36306E-4
     Fe57 = Fe57      3.14789E-6
     Fe58 = Fe58      4.18926E-7
-    Zr90 = Zr90      2.18865E-2 
-    Zr91 = Zr91      4.77292E-3 
-    Zr92 = Zr92      7.29551E-3 
-    Zr94 = Zr94      7.39335E-3 
-    Zr96 = Zr96      1.19110E-3 
+    Zr90 = Zr90      2.18865E-2
+    Zr91 = Zr91      4.77292E-3
+    Zr92 = Zr92      7.29551E-3
+    Zr94 = Zr94      7.39335E-3
+    Zr96 = Zr96      1.19110E-3
     Sn112 = Sn112    4.68066E-6
     Sn114 = Sn114    3.18478E-6
     Sn115 = Sn115    1.64064E-6
@@ -104,21 +107,19 @@ XSLib := LIB: ::
     Sn122 = Sn122    2.23417E-5
     Sn124 = Sn124    2.79392E-5
     Hf174 = Hf174    3.54138E-9
-    Hf176 = Hf176    1.16423E-7 
+    Hf176 = Hf176    1.16423E-7
     Hf177 = Hf177    4.11686E-7
-    Hf178 = Hf178    6.03806E-7 
-    Hf179 = Hf179    3.01460E-7 
+    Hf178 = Hf178    6.03806E-7
+    Hf179 = Hf179    3.01460E-7
   MIX 6 <<ModTemp>> <<ModDens>>
     H1H2O  = H1_H2O    <<N_HH2O>> NOEV
     O16H2O = O16       <<N_OH2O>> NOEV
-    B10 = B10          <<N_B10H2O>>  NOEV 
-    B11 = B11          <<N_B11H2O>>  NOEV 
+    B10 = B10          <<N_B10H2O>>  NOEV
+    B11 = B11          <<N_B11H2O>>  NOEV
 ;
-
 
 * Generation alternative d'une Library en utilisant le module INFO:
 * En sortie du module LIB: les densités isotopiques sont affichées avec EDIT 1 (voir LOCAL NAME)
-
 
 * Calcul des propriétés des matériaux
 REAL Enrich := Enri 100.0 * ;
@@ -126,30 +127,30 @@ REAL Enrich := Enri 100.0 * ;
 REAL n_U5 n_U8 n_O16 m_U5 m_U8 ;
 INFO: ::  ENR: <<Enrich>> WGT%
           LIB:  DRAGON FIL: <<Library>>
-          ISO: 3  U235 U238 O16  
+          ISO: 3  U235 U238 O16
           CALC WGT% UO2 >>n_U5<<  >>n_U8<< >>n_O16<<
-	  LIB:  DRAGON FIL: <<Library>> 
-	  ISO: 2    U235    U238   
+	  LIB:  DRAGON FIL: <<Library>>
+	  ISO: 2    U235    U238
 	  GET MASS  >>m_U5<< >>m_U8<<  ;
 * Masses atomiques (par groupe de 3 au max)
-* Lecture des masses de l'H et de l'O 
-REAL  m_H1H2O m_O16 m_B10 m_B11 ;     
+* Lecture des masses de l'H et de l'O
+REAL  m_H1H2O m_O16 m_B10 m_B11 ;
 INFO: ::
-LIB:  DRAGON FIL: <<Library>> 
-ISO: 2    H1_H2O    O16   
+LIB:  DRAGON FIL: <<Library>>
+ISO: 2    H1_H2O    O16
 GET MASS  >>m_H1H2O<< >>m_O16<<  ;
-* Lecture des masses du bore 
+* Lecture des masses du bore
 INFO: ::
-LIB:  DRAGON FIL: <<Library>> 
-ISO: 2    B10    B11   
+LIB:  DRAGON FIL: <<Library>>
+ISO: 2    B10    B11
 GET MASS  >>m_B10<<  >>m_B11<< ;
 
 * Densité de l'eau
-REAL modDens  ;     
+REAL modDens  ;
 INFO: ::
 TMP: <<ModTemp>> K
 PUR: 0.0   WGT%
-CALC DENS WATER >>modDens<<  
+CALC DENS WATER >>modDens<<
 LIB:  DRAGON FIL: <<Library>> ;
 
 ECHO "Prop = n_U5 n_U8 n_O16 m_H1H2O m_O16 m_U5 m_U8 m_B10 m_B11 modDens" ;
@@ -157,28 +158,30 @@ ECHO "Proprietes =" n_U5 n_U8 n_O16 m_H1H2O m_O16 m_U5 m_U8 m_B10 m_B11 modDens 
 
 REAL m_H2O  := m_H1H2O 2.0 * m_O16 + ;
 REAL m_Bore := pct_B10 m_B10 * pct_B11 m_B11 * + ;
-REAL m_Mod  := m_Bore ppmB * m_H2O + ;
+REAL m_Mod  := m_Bore ppmb * m_H2O + ;
 
-REAL n_HH2O := 2.0 m_H1H2O * m_Mod / ; 
+REAL n_HH2O := 2.0 m_H1H2O * m_Mod / ;
 REAL n_OH2O := m_O16 m_Mod / ;
-REAL n_B10H2O := ppmB pct_B10 * m_B10 * m_Mod / ; 
-REAL n_B11H2O := ppmB pct_B11 * m_B11 * m_Mod / ;
+REAL n_B10H2O := ppmb pct_B10 * m_B10 * m_Mod / ;
+REAL n_B11H2O := ppmb pct_B11 * m_B11 * m_Mod / ;
 
-XSLIB := LIB: :: 
+ECHO "n_HH2O n_OH2O n_B10H2O n_B11H2O"  n_HH2O n_OH2O n_B10H2O n_B11H2O ;
+
+XSLIB := LIB: ::
    EDIT 1
    NMIX 6 CTRA APOL
-   SUBG 
+   SUBG
    DEPL LIB: DRAGON FIL: <<Library>>
    MIXS LIB: DRAGON FIL: <<Library>>
    MIX 1 <<FuelTemp>> <<FuelDens>>
-    U235    = U235        <<n_U5>>  1  
+    U235    = U235        <<n_U5>>  1
     U238    = U238        <<n_U8>>  1
-    O16     = O16         <<n_O16>> 
+    O16     = O16         <<n_O16>>
    MIX 2 COMB 1 1.0
    MIX 3 COMB 1 1.0
    MIX 4 COMB 1 1.0
-   MIX 5 <<CladTemp>> 
-    Cr50 = Cr50      3.30121E-6 
+   MIX 5 <<CladTemp>>
+    Cr50 = Cr50      3.30121E-6
     Cr52 = Cr52      6.36606E-5
     Cr53 = Cr53      7.21860E-6
     Cr54 = Cr54      1.79686E-6
@@ -186,11 +189,11 @@ XSLIB := LIB: ::
     Fe56 = Fe56      1.36306E-4
     Fe57 = Fe57      3.14789E-6
     Fe58 = Fe58      4.18926E-7
-    Zr90 = Zr90      2.18865E-2 
-    Zr91 = Zr91      4.77292E-3 
-    Zr92 = Zr92      7.29551E-3 
-    Zr94 = Zr94      7.39335E-3 
-    Zr96 = Zr96      1.19110E-3 
+    Zr90 = Zr90      2.18865E-2
+    Zr91 = Zr91      4.77292E-3
+    Zr92 = Zr92      7.29551E-3
+    Zr94 = Zr94      7.39335E-3
+    Zr96 = Zr96      1.19110E-3
     Sn112 = Sn112    4.68066E-6
     Sn114 = Sn114    3.18478E-6
     Sn115 = Sn115    1.64064E-6
@@ -202,18 +205,16 @@ XSLIB := LIB: ::
     Sn122 = Sn122    2.23417E-5
     Sn124 = Sn124    2.79392E-5
     Hf174 = Hf174    3.54138E-9
-    Hf176 = Hf176    1.16423E-7 
+    Hf176 = Hf176    1.16423E-7
     Hf177 = Hf177    4.11686E-7
-    Hf178 = Hf178    6.03806E-7 
-    Hf179 = Hf179    3.01460E-7 
-  MIX 6 <<ModTemp>> <<modDens>>
+    Hf178 = Hf178    6.03806E-7
+    Hf179 = Hf179    3.01460E-7
+  MIX 6 <<ModTemp>> <<ModDens>>
     H1H2O  = H1_H2O    <<n_HH2O>> NOEV
     O16H2O = O16       <<n_OH2O>> NOEV
-    B10 = B10          <<n_B10H2O>>  NOEV 
-    B11 = B11          <<n_B11H2O>>  NOEV 
+    B10 = B10          <<n_B10H2O>>  NOEV
+    B11 = B11          <<n_B11H2O>>  NOEV
 ;
-
-
 
 END: ;
 QUIT "LIST" .
