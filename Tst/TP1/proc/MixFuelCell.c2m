@@ -48,7 +48,7 @@ REAL pct_B10          pct_B11 :=
 ECHO " Enrichissement = " Enri ;
 ECHO " ppmB = " ppmB ;
 
-* Ajout pour estimer correctement la fraction de bore
+* Correction de la la fraction de bore
 REAL ppmb := ppmB 1.0E-6 * ;
 
 REAL M_H2O  := M_H1H2O 2.0 * M_O16 + ;
@@ -124,11 +124,11 @@ XSLib := LIB: ::
 * Calcul des propriétés des matériaux
 REAL Enrich := Enri 100.0 * ;
 * Fractions massiques U5 et U8
-REAL n_U5 n_U8 n_O16 m_U5 m_U8 ;
+REAL w_U5 w_U8 w_O16 m_U5 m_U8 ;
 INFO: ::  ENR: <<Enrich>> WGT%
           LIB:  DRAGON FIL: <<Library>>
           ISO: 3  U235 U238 O16
-          CALC WGT% UO2 >>n_U5<<  >>n_U8<< >>n_O16<<
+          CALC WGT% UO2 >>w_U5<<  >>w_U8<< >>w_O16<<
 	  LIB:  DRAGON FIL: <<Library>>
 	  ISO: 2    U235    U238
 	  GET MASS  >>m_U5<< >>m_U8<<  ;
@@ -153,19 +153,24 @@ PUR: 0.0   WGT%
 CALC DENS WATER >>modDens<<
 LIB:  DRAGON FIL: <<Library>> ;
 
-ECHO "Prop = n_U5 n_U8 n_O16 m_H1H2O m_O16 m_U5 m_U8 m_B10 m_B11 modDens" ;
-ECHO "Proprietes =" n_U5 n_U8 n_O16 m_H1H2O m_O16 m_U5 m_U8 m_B10 m_B11 modDens ;
+ECHO "Prop = w_U5 w_U8 w_O16 m_H1H2O m_O16 m_U5 m_U8 m_B10 m_B11 modDens" ;
+ECHO "Proprietes =" w_U5 w_U8 w_O16 m_H1H2O m_O16 m_U5 m_U8 m_B10 m_B11 modDens ;
 
+* Calcul des densités massiques de l'eau borée
 REAL m_H2O  := m_H1H2O 2.0 * m_O16 + ;
 REAL m_Bore := pct_B10 m_B10 * pct_B11 m_B11 * + ;
-REAL m_Mod  := m_Bore ppmb * m_H2O + ;
 
-REAL n_HH2O := 2.0 m_H1H2O * m_Mod / ;
-REAL n_OH2O := m_O16 m_Mod / ;
-REAL n_B10H2O := ppmb pct_B10 * m_B10 * m_Mod / ;
-REAL n_B11H2O := ppmb pct_B11 * m_B11 * m_Mod / ;
+REAL m_Mod  := m_H2O ppmb 1.0 + *  ; ! Ajout du bore au modérateur
 
-ECHO "n_HH2O n_OH2O n_B10H2O n_B11H2O"  n_HH2O n_OH2O n_B10H2O n_B11H2O ;
+REAL w_H2O := m_H2O m_Mod / ;
+REAL w_Bore := 1. w_H2O - ;
+
+REAL w_HH2O := 2.0 m_H1H2O * m_Mod / ;
+REAL w_OH2O := m_O16 m_Mod / ;
+REAL w_B10H2O := pct_B10 m_B10 * m_Bore / w_Bore * ;
+REAL w_B11H2O := pct_B11 m_B11 * m_Bore / w_Bore * ;
+
+ECHO "w_HH2O w_OH2O n_B10H2O w_B11H2O"  w_HH2O w_OH2O w_B10H2O w_B11H2O ;
 
 XSLIB := LIB: ::
    EDIT 1
@@ -174,9 +179,9 @@ XSLIB := LIB: ::
    DEPL LIB: DRAGON FIL: <<Library>>
    MIXS LIB: DRAGON FIL: <<Library>>
    MIX 1 <<FuelTemp>> <<FuelDens>>
-    U235    = U235        <<n_U5>>  1
-    U238    = U238        <<n_U8>>  1
-    O16     = O16         <<n_O16>>
+    U235    = U235        <<w_U5>>  1
+    U238    = U238        <<w_U8>>  1
+    O16     = O16         <<w_O16>>
    MIX 2 COMB 1 1.0
    MIX 3 COMB 1 1.0
    MIX 4 COMB 1 1.0
@@ -209,11 +214,11 @@ XSLIB := LIB: ::
     Hf177 = Hf177    4.11686E-7
     Hf178 = Hf178    6.03806E-7
     Hf179 = Hf179    3.01460E-7
-  MIX 6 <<ModTemp>> <<ModDens>>
-    H1H2O  = H1_H2O 0.11184249704653758     NOEV
-    O16H2O = O16    0.8875079251790159       NOEV
-    B10 = B10       0.00011972356621939667   NOEV
-    B11 = B11       0.0005298542082271226    NOEV
+  MIX 6 <<ModTemp>> <<modDens>>
+    H1H2O  = H1_H2O <<w_HH2O>>   NOEV
+    O16H2O = O16    <<w_OH2O>>   NOEV
+    B10 = B10       <<w_B10H2O>> NOEV
+    B11 = B11       <<w_B11H2O>> NOEV
 ;
 
 
