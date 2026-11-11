@@ -13,11 +13,11 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui vont recolter les Evoluti
 
    LINKED_LIST GeoCell GeoAss GeoBis       ! Geometrie consideree
                 NXTTracking SYBILTrk       ! Tracking pour les lignes d'integration
-	        XSLib XSLibAutop           ! XS par milieu
-	        Pij Flx                    ! Pij et Flux
-		EditionMicro EditionMacro  ! MCPO Macro
-		Evol ;             
-		 
+                XSLib XSLibAutop           ! XS par milieu
+                Pij Flx                    ! Pij et Flux
+                EditionMicro EditionMacro  ! MCPO Macro
+                Evol ;             
+
    SEQ_BINARY Lignes ;                     ! Binaire pour les segments d'integration
    SEQ_ASCII Fig1.ps Fig2.ps Fig3.ps  ;    ! Nom fichier figure
 
@@ -32,7 +32,7 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui vont recolter les Evoluti
 *---------------------------------------------------------------------------
 * Definition des variables
 *---------------------------------------------------------------------------
-    STRING Library := "L295b7r1" ;         ! Pour les donnees nucleaire
+    STRING Library := "L99j3p1"  ;         ! Pour les donnees nucleaire
     REAL Enri      := 3.25E-2    ;
     REAL ppmB      := 0.0        ;
     REAL Power     := 36.00      ;         ! Pour la normalisation de puissance
@@ -66,7 +66,7 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui vont recolter les Evoluti
 *---------------------------------------------------------------------------
     MCPOMACRO := COMPO: :: 
         EDIT 0 
-	STEP UP 'UOX'
+        STEP UP 'UOX'
         MAXCAL 1 
         COMM 'Evolution homogeneised assembly' ENDC 
         PARA 'burnup'   IRRA 
@@ -93,7 +93,7 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui vont recolter les Evoluti
 *---------------------------------------------------------------------------
     WHILE istep_bore nstep_bore < DO 
         
-	EVALUATE istep Delt :=    0  2.5 ;                 ! Initialisation pas de temps
+        EVALUATE istep Delt :=    0  2.5 ;                 ! Initialisation pas de temps
         EVALUATE Tend := 0.0 ;                             ! Initialisation pas de temps
 
         *------------------------------------------------------------------
@@ -110,8 +110,8 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui vont recolter les Evoluti
         ECHO "Calcul Flux OK" ; 
     
         Pij := DELETE: Pij ;     
-	
-	EditionMacro := EDI: Flx XSLibAutop NXTTracking ::  
+
+        EditionMacro := EDI: Flx XSLibAutop NXTTracking ::  
             EDIT 0 
             COND 0.625 MERGE COMP  
             SAVE ; 
@@ -122,17 +122,17 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui vont recolter les Evoluti
         Evol XSLibAutop := EVO: XSLibAutop Flx NXTTracking :: 
             SAVE 0.0 DAY POWR <<Power>> ; 
     
-        MCPOMACRO := COMPO: MCPOMACRO EditionMacro Evol XSLibAutop :: 
-	    STEP UP 'UOX'   
-	    ppmB <<ppmB>>
-            SET  <<Tend>> DAY   ; 
-    
+        MCPOMACRO := COMPO: MCPOMACRO EditionMacro Evol XSLibAutop ::
+            STEP UP 'UOX'
+            ppmB <<ppmB>>
+            SET  <<Tend>> DAY ;
+            
         WHILE istep nstep < DO 
             EVALUATE Tend := Tend Delt + ; 
      
             Evol XSLibAutop := EVO: Evol XSLibAutop Flx NXTTracking :: 
-                DEPL <<Delt>> DAY POWR <<Power>> ; 
-	    ECHO "PAS de TEMPS = " istep ;
+                DEPL <<Delt>> DAY POWR <<Power>> ;
+            ECHO "PAS de TEMPS = " istep ;
       
             *---- 
             * Mise a jour Autop --> Test sur les pas de temps  
@@ -146,12 +146,12 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui vont recolter les Evoluti
             Pij := ASM: XSLibAutop NXTTracking Lignes :: EDIT 0 ; 
             Flx := FLU: Flx Pij XSLibAutop NXTTracking :: TYPE B B1 SIGS ; 
             Pij := DELETE: Pij ; 
-        
-	    EditionMacro := EDI: EditionMacro Flx XSLibAutop NXTTracking ::  
+
+            EditionMacro := EDI: EditionMacro Flx XSLibAutop NXTTracking ::  
                 EDIT 0 
                 COND 0.625 MERGE COMP  
-		SAVE ;
-       
+                SAVE ;
+
             *---- 
             * Update Compo  
             *---- 
@@ -159,8 +159,8 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui vont recolter les Evoluti
                 SAVE <<Tend>> DAY POWR <<Power>> ; 
      
             MCPOMACRO := COMPO: MCPOMACRO EditionMacro Evol XSLibAutop :: 
-	        STEP UP 'UOX'      
-	        ppmB <<ppmB>> 
+                STEP UP 'UOX'      
+                ppmB <<ppmB>> 
                 SET  <<Tend>> DAY ; 
 
             *---- 
@@ -188,15 +188,15 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui vont recolter les Evoluti
             ENDIF ; 
        
         ENDWHILE ; 
-	
-	* Pour sauver les points en fonction du BU cf module FMT:
-	
-	EVALUATE istep_bore := istep_bore 1 +  ;  
+
+        * Pour sauver les points en fonction du BU cf module FMT:
+
+        EVALUATE istep_bore := istep_bore 1 +  ;  
         EVALUATE ppmB := ppmB 650.0 + ;
         
-	Flx XSLib XSLibAutop EditionMacro Evol := DELETE: 
+        Flx XSLib XSLibAutop EditionMacro Evol := DELETE: 
         Flx XSLib XSLibAutop EditionMacro Evol ; 
-	
+
      ENDWHILE ;
     
 *---------------------------------------------------------------------------

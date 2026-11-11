@@ -14,11 +14,11 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui vont recolter les Evoluti
 
    LINKED_LIST GeoCell                    ! Geometrie consideree
                 NXTTracking SYBILTrk       ! Tracking pour les lignes d'integration
-	        XSLib XSLibAutop           ! XS par milieu
-	        Pij Flx                    ! Pij et Flux
-		EditionMicro EditionMacro  ! MCPO Macro
-		Evol ;             
-		 
+                XSLib XSLibAutop           ! XS par milieu
+                Pij Flx                    ! Pij et Flux
+                EditionMicro EditionMacro  ! MCPO Macro
+                Evol ;             
+
    SEQ_BINARY Lignes ;                     ! Binaire pour les segments d'integration
    SEQ_ASCII Fig1.ps Fig2.ps Fig3.ps  ;    ! Nom fichier figure
 
@@ -33,7 +33,7 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui vont recolter les Evoluti
 *---------------------------------------------------------------------------
 * Definition des variables
 *---------------------------------------------------------------------------
-    STRING Library := "L295b7r1" ;         ! Pour les donnees nucleaire
+    STRING Library := "L99j3p1"  ;         ! Pour les donnees nucleaire
     REAL Enri      := 3.25E-2    ;
     REAL ppmB      := 0.0        ;
     REAL Power     := 36.00      ;         ! Pour la normalisation de puissance
@@ -127,7 +127,7 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui vont recolter les Evoluti
      
         Evol XSLibAutop := EVO: Evol XSLibAutop Flx NXTTracking :: 
             DEPL <<Delt>> DAY POWR <<Power>> ; 
-	ECHO "PAS de TEMPS = " istep ;
+        ECHO "PAS de TEMPS = " istep ;
       
         *---- 
         * Mise a jour Autop --> Test sur les pas de temps  
@@ -142,7 +142,7 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui vont recolter les Evoluti
         Flx := FLU: Flx Pij XSLibAutop NXTTracking :: TYPE B B1 SIGS ; 
         Pij := DELETE: Pij ; 
         
-	EditionMacro := EDI: EditionMacro Flx XSLibAutop NXTTracking ::  
+        EditionMacro := EDI: EditionMacro Flx XSLibAutop NXTTracking ::  
             EDIT 0 
              COND 0.625 MERGE COMP  
              SAVE ; 
