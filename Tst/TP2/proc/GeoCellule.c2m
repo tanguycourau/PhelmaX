@@ -1,0 +1,36 @@
+*----
+*
+*  Input data   :
+*
+*  Output data  :
+*    Geo :  Geometrie utilisee pour l'exemple et le tracking
+*    
+*----
+
+PARAMETER GeoCell ::
+::: LINKED_LIST GeoCell  ; ;
+
+*----
+*  Rayons
+*----
+REAL R4 := 0.40958 ;
+REAL R1 := R4 0.5 SQRT * ;
+REAL R2 := R4 0.8 SQRT * ;
+REAL R3 := R4 0.95 SQRT * ;
+REAL RG := 0.4798 ; 
+
+*----
+*  Modules 
+*----
+MODULE END: GEO: ;
+
+GeoCell := GEO: :: CARCEL 6
+ X- REFL X+ REFL MESHX 0.0 1.26472
+ Y- REFL Y+ REFL MESHY 0.0 1.26472
+ RADIUS 0.0  <<R1>> <<R2>> <<R3>> <<R4>> <<RG>> 0.625
+ MIX 1 2 3 4 5 6 6 ;
+
+END: ; 
+QUIT "LIST" .
+ 
+

@@ -1,0 +1,214 @@
+*---------------------------------------------------------------------------
+*
+* Parametrisation des XS macro en bore et BU
+* 
+*
+*---------------------------------------------------------------------------
+
+LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui vont recolter les Evolutions
+
+*---------------------------------------------------------------------------
+* Declaration des objets, des fichiers et des procedures
+*---------------------------------------------------------------------------
+
+   LINKED_LIST GeoCell GeoAss GeoBis       ! Geometrie consideree
+                NXTTracking SYBILTrk       ! Tracking pour les lignes d'integration
+	        XSLib XSLibAutop           ! XS par milieu
+	        Pij Flx                    ! Pij et Flux
+		EditionMicro EditionMacro  ! MCPO Macro
+		Evol ;             
+		 
+   SEQ_BINARY Lignes ;                     ! Binaire pour les segments d'integration
+   SEQ_ASCII Fig1.ps Fig2.ps Fig3.ps  ;    ! Nom fichier figure
+
+
+   PROCEDURE GeoCellule Geometries         ! Fonction pour la construction de la cellule
+             MixFuelCell ;                 ! Fonction pour la definition des materiaux
+
+
+   MODULE GEO: PSP: END: NXT: ASM: FLU: DELETE: USS: 
+          SYBILT: EDI: EVO: COMPO:    ; 
+
+*---------------------------------------------------------------------------
+* Definition des variables
+*---------------------------------------------------------------------------
+    STRING Library := "L295b7r1" ;         ! Pour les donnees nucleaire
+    REAL Enri      := 3.25E-2    ;
+    REAL ppmB      := 0.0        ;
+    REAL Power     := 36.00      ;         ! Pour la normalisation de puissance
+    REAL Tend      := 0.0        ;         ! Pas de temps final
+    INTEGER nstep  := 25         ;         ! Nb pas de temps
+    INTEGER istep  := 0          ;         ! Indice pas de temps
+    REAL Delt      := 2.5        ;         ! pas de temps
+    INTEGER nstep_bore  := 5     ;         ! Nb pas de bore
+    INTEGER istep_bore  := 0     ;         ! Indice pas de bore
+        
+    *---- 
+    *  25 steps loop from the beginning 
+    *  by 2.5 days from  0    to    5 days (0, 1, 2) 
+    *  by 5   days from  5    to   10 days (3) 
+    *  by 10  days from  10   to   50 days (4, 5, 6, 7) 
+    *  by 50  days from  50   to  300 days (8, 9, 10, 11, 12) 
+    *  by 100 days from  300  to  700 days (13, 14, 15, 16) 
+    *  by 150 days from  700  to 1600 days (17, 18, 19, 20, 21, 22) 
+    *  by 200 days from  1600 to 2000 days (23, 24) 
+    *---- 
+
+*---------------------------------------------------------------------------
+* Definition de la geometrie
+*---------------------------------------------------------------------------
+    GeoCell  := GeoCellule :: ;
+    GeoAss GeoBis  := Geometries :: ;
+    ECHO "Geometrie OK" ; 
+
+*---------------------------------------------------------------------------
+* Initialisation des COMPO
+*---------------------------------------------------------------------------
+    MCPOMACRO := COMPO: :: 
+        EDIT 0 
+	STEP UP 'UOX'
+        MAXCAL 1 
+        COMM 'Evolution homogeneised assembly' ENDC 
+        PARA 'burnup'   IRRA 
+        PARA 'ppmB'     VALU REAL 
+        INIT ; 
+
+*    MCPOMICRO := COMPO: :: 
+*        EDIT 0 
+*        MAXCAL 1 
+*        COMM 'Evolution homogeneised assembly' ENDC 
+*        PARA 'burnup'   IRRA 
+*        PARA 'ppmB'     VALU REAL   
+*        INIT  ; 
+   
+*---------------------------------------------------------------------------
+* Tracking Calcul 
+*---------------------------------------------------------------------------
+    NXTTracking Lignes := NXT: GeoCell :: EDIT 0 TISO 5 50.0 ; ! ATTENTION : A CHANGER POUR CALCUL ASS
+    SYBILTrk := SYBILT: GeoCell :: EDIT 0 DP01 MAXR 500 MAXZ 1000000 ; 
+    ECHO "Calcul Tracking OK" ; 
+
+*---------------------------------------------------------------------------
+* Boucle sur le bore
+*---------------------------------------------------------------------------
+    WHILE istep_bore nstep_bore < DO 
+        
+	EVALUATE istep Delt :=    0  2.5 ;                 ! Initialisation pas de temps
+        EVALUATE Tend := 0.0 ;                             ! Initialisation pas de temps
+
+        *------------------------------------------------------------------
+        * Calcul des XS macro
+        *------------------------------------------------------------------
+        XSLib := MixFuelCell :: <<Library>> <<Enri>> <<ppmB>>  ;
+        XSLibAutop := USS: XSLib SYBILTrk :: EDIT 0 PASS 3 MAXST 100 ; 
+        ECHO "Calcul Autop OK" ;
+
+        Pij := ASM: XSLibAutop NXTTracking Lignes :: EDIT 0 ; 
+        ECHO "Calcul Pij OK" ; 
+
+        Flx := FLU: Pij XSLibAutop NXTTracking :: TYPE B B1 SIGS ; 
+        ECHO "Calcul Flux OK" ; 
+    
+        Pij := DELETE: Pij ;     
+	
+	EditionMacro := EDI: Flx XSLibAutop NXTTracking ::  
+            EDIT 0 
+            COND 0.625 MERGE COMP  
+            SAVE ; 
+
+        *------------------------------------------------------------------
+        * Boucle sur le temps
+        *------------------------------------------------------------------
+        Evol XSLibAutop := EVO: XSLibAutop Flx NXTTracking :: 
+            SAVE 0.0 DAY POWR <<Power>> ; 
+    
+        MCPOMACRO := COMPO: MCPOMACRO EditionMacro Evol XSLibAutop :: 
+	    STEP UP 'UOX'   
+	    ppmB <<ppmB>>
+            SET  <<Tend>> DAY   ; 
+    
+        WHILE istep nstep < DO 
+            EVALUATE Tend := Tend Delt + ; 
+     
+            Evol XSLibAutop := EVO: Evol XSLibAutop Flx NXTTracking :: 
+                DEPL <<Delt>> DAY POWR <<Power>> ; 
+	    ECHO "PAS de TEMPS = " istep ;
+      
+            *---- 
+            * Mise a jour Autop --> Test sur les pas de temps  
+            *---- 
+            XSLibAutop := USS: XSLib XSLibAutop SYBILTrk :: 
+                EDIT 0 PASS 3 MAXST 100 ; 
+      
+            *---- 
+            * PIJ and flux calculation 
+            *---- 
+            Pij := ASM: XSLibAutop NXTTracking Lignes :: EDIT 0 ; 
+            Flx := FLU: Flx Pij XSLibAutop NXTTracking :: TYPE B B1 SIGS ; 
+            Pij := DELETE: Pij ; 
+        
+	    EditionMacro := EDI: EditionMacro Flx XSLibAutop NXTTracking ::  
+                EDIT 0 
+                COND 0.625 MERGE COMP  
+		SAVE ;
+       
+            *---- 
+            * Update Compo  
+            *---- 
+            Evol XSLibAutop := EVO: Evol XSLibAutop Flx NXTTracking :: 
+                SAVE <<Tend>> DAY POWR <<Power>> ; 
+     
+            MCPOMACRO := COMPO: MCPOMACRO EditionMacro Evol XSLibAutop :: 
+	        STEP UP 'UOX'      
+	        ppmB <<ppmB>> 
+                SET  <<Tend>> DAY ; 
+
+            *---- 
+            *  update time steps 
+            *---- 
+            EVALUATE istep := istep 1 + ; 
+            IF istep 2 = THEN 
+                *  5 days from 5 to 10 
+                EVALUATE Delt   :=    5.0 ; 
+            ELSEIF istep 3 = THEN 
+                *  10 days from 10 to 50  
+                EVALUATE Delt   :=  10.0 ; 
+            ELSEIF istep 7 = THEN 
+                *  50 days from 50 to 300  
+                EVALUATE Delt   :=  50.0 ; 
+            ELSEIF istep 12 = THEN 
+                *  100 days from 300 to 700  
+                EVALUATE Delt   :=  100.0 ; 
+            ELSEIF istep 16 = THEN 
+                *  150 days from 700 to 1600  
+                EVALUATE Delt   :=  150.0 ; 
+            ELSEIF istep 22 = THEN 
+                *  200 days from 1600 to 2000  
+                EVALUATE Delt   :=  200.0 ; 
+            ENDIF ; 
+       
+        ENDWHILE ; 
+	
+	* Pour sauver les points en fonction du BU cf module FMT:
+	
+	EVALUATE istep_bore := istep_bore 1 +  ;  
+        EVALUATE ppmB := ppmB 650.0 + ;
+        
+	Flx XSLib XSLibAutop EditionMacro Evol := DELETE: 
+        Flx XSLib XSLibAutop EditionMacro Evol ; 
+	
+     ENDWHILE ;
+    
+*---------------------------------------------------------------------------
+* Visualisation et sauvegarde de certains resultats
+*---------------------------------------------------------------------------
+    STRING Name1 := "MCPOMACRO.txt" ;
+    SEQ_ASCII MCPOMacr :: FILE <<Name1>> ; 
+    MCPOMacr := MCPOMACRO ; 
+
+    STRING NameMacBin := 'MCPOMACRO.bin' ;    
+    SEQ_BINARY MCPOMacrbin :: FILE <<NameMacBin>> ;   
+    MCPOMacrbin := MCPOMACRO ; 
+
+ECHO "terminee" ; 
+END: ;
