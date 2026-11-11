@@ -1,0 +1,66 @@
+Je ne comprends pas bien ce que l'on fait :
+- une boucle en Cb et et Bu ? A priori oui car on a dans le fichier macro.txt associé pval1 (26) et ppmB associé à pval 2 (5)
+- pourquoi dans le relecture on ne trouve que 26 vlaeurs associés au bu et pas les valeurs associées à la cb ?
+- pourrait -on utiliser l'option pert du module lib pour perturber à un burnup donné les sections et faire ainsi des reprises et ne pas faire autant d'evo que de paramètres.
+- comment gère-t-on le produit des compo (buxTfxCb)
+- intérêt d'utiliser le module fmt ?
+
+Exemple de out
+
+OUT := FMT: EDITION BURNUP :: BURNUP ISOP U235 U236 U238 Np237
+ Pu238 Pu239 Pu240 Pu241 Pu242 Am241 Am242 Am243 Cm242 Cm243 Cm244 ;
+
+Time =[ 0.00000000E+00 9.99999940E-01 4.99999952E+00 9.99999905E+00 1.99999981E+01 2.99999981E+01 3.99999962E+01 5.00000000E+01 6.99999924E+01 9.00000000E+01 1.09999992E+02 1.29999985E+02 1.50000000E+02 2.00000000E+02 2.50000000E+02 3.00000000E+02 3.49999969E+02 4.00000000E+02 4.49999969E+02 5.00000000E+02 5.49999939E+02 6.00000000E+02 6.50000000E+02 6.99999939E+02 7.49999939E+02 8.00000000E+02 8.49999939E+02 8.99999939E+02 9.49999939E+02 1.00000000E+03 1.04999988E+03 1.09999988E+03];
+Keff =[ 1.09525859E+00 1.08669412E+00 1.08200645E+00 1.08066297E+00 1.07816923E+00 1.07585108E+00 1.07372022E+00 1.07175183E+00 1.06816816E+00 1.06495607E+00 1.06201339E+00 1.05925608E+00 1.05664062E+00 1.05052102E+00 1.04476535E+00 1.03929603E+00 1.03395987E+00 1.02877104E+00 1.02370334E+00 1.01874304E+00 1.01387000E+00 1.00908840E+00 1.00438893E+00 9.99764144E-01 9.95212138E-01 9.90726292E-01 9.86293316E-01 9.81917918E-01 9.77602780E-01 9.73347485E-01 9.69145000E-01 9.64969456E-01];
+DenU235    =zeros(  32,   4);
+DenU235    (:,   1)=[ 0.61355873E-04 0.61331950E-04 0.61236067E-04 0.61116429E-04 0.60877803E-04 0.60639937E-04 0.60402821E-04 0.60166443E-04 0.59695936E-04 0.59228492E-04 0.58764050E-04 0.58302601E-04 0.57844110E-04 0.56710738E-04 0.55596087E-04 0.54499327E-04 0.53420292E-04 0.52358508E-04 0.51313764E-04 0.50285817E-04 0.49274440E-04 0.48279417E-04 0.47300502E-04 0.46337536E-04 0.45390323E-04 0.44458669E-04 0.43542383E-04 0.42641259E-04 0.41755149E-04 0.40883904E-04 0.40027393E-04 0.39185412E-04];
+
+
+* L'objet BURNUP est porte les données d'évolution
+BURNUP LIBRARY := EVO: LIBRARY FLUX DISCR ::
+  DEPL <<Timei>> <<Timef>> DAY POWR <<Power>> ;
+
+
+* Exemple de perturbation en température
+
+EVALUATE Tmod := Tmod DT + ;
+INFO: ::  TMP: <<Tmod>> K
+          PUR: 0.0   WGT%
+          CALC DENS WATER >>Densmod<< ;
+
+* Creation de la librarie perturbée
+
+LIBRARYP := LIB: :: EDIT 3
+  NMIX 4 CTRA APOL
+  DEPL LIB: WIMSD4 FIL: iaea
+  MIXS LIB: WIMSD4 FIL: iaea
+  MIX 1 <<Tfuel>> <<Densfuel>>  ! MIX 1 read from BURNUP data
+    O16      = '6016'      1.0
+    U235     = '2235'      0.0     1
+    U238     = '8238'      0.0     1
+    U236     = '236'       0.0     1
+    Np237    = '937'       0.0     1
+    Pu238    = '948'       0.0     1
+    Pu239    = '6239'      0.0     1
+    Pu240    = '1240'      0.0     1
+    Pu241    = '1241'      0.0     1
+    Pu242    = '1242'      0.0     1
+    Am241    = '951'       0.0     1
+    Am242    = '1952'      0.0     1
+    Am243    = '953'       0.0     1
+    Cm242    = '962'       0.0     1
+    Cm243    = '963'       0.0     1
+    Cm244    = '964'       0.0     1
+  MIX 2 <<Tmod>>
+    Zr91     = '91'    3.92175E-2
+    O16      = '6016'  3.06711E-4
+    Fe56     = '2056'  1.47624E-4
+  MIX 3 <<Tmod>> <<Densmod>>
+    H1H2O    = '3001'    <<wgtH1>>
+    O16H2O   = '6016'    <<wgtO16>>
+    Bnat     = '1011'    <<wgtBnat>>
+  MIX 4 COMB 3 100.0 ; ! MIX 4 is 100% moderator
+* MIX 4 <<Tmod>> 7.5 Fe56  = '2056'  100.0 ; ! Pure iron absorber
+
+* UPDATE MIX 1 from BURNUP DATA
+LIBRARYP := LIB: LIBRARYP BURNUP :: BURN <<BUSTEP>> MIX 1   ;
