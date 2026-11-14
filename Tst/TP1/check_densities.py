@@ -22,8 +22,8 @@ print(f'fractions massiques U5 et U8:  {wgt_U5:.3f} {wgt_U8:.3f}')
 # Melange 6
 n_H1H2O   = 4.8093E-02
 n_O16H2O  = 2.4047E-02 
-n_B10     = 5.1822E-06
-n_B11     = 2.0859E-05 
+n_B10     = 5.1856E-06
+n_B11     = 2.0873E-05 
 
 NA = 0.602214 # Avogadro en 10E24
 

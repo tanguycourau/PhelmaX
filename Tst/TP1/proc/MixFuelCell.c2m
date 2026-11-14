@@ -160,7 +160,9 @@ ECHO "Proprietes =" w_U5 w_U8 w_O16 m_H1H2O m_O16 m_U5 m_U8 m_B10 m_B11 modDens 
 REAL m_H2O  := m_H1H2O 2.0 * m_O16 + ;
 REAL m_Bore := pct_B10 m_B10 * pct_B11 m_B11 * + ;
 
-REAL m_Mod  := m_H2O ppmb 1.0 + *  ; ! Ajout du bore au modérateur
+
+REAL alpha := ppmb 1.0 ppmb - / ;     !  alpha = m_Bore/m_H2O = ppmb/(1-ppmb)
+REAL m_Mod  := m_H2O alpha 1.0 + *  ; ! Ajout du bore au modérateur
 
 REAL w_H2O := m_H2O m_Mod / ;
 REAL w_Bore := 1. w_H2O - ;
