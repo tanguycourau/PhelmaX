@@ -1,0 +1,141 @@
+*----
+*
+*  Input data   : Library, Enri, ppmB
+*
+*  Output data  :
+*    XSLib   : Microlib with table of probabilities
+*    
+*----
+PARAMETER XSLib ::  
+::: LINKED_LIST XSLib ; ;
+
+STRING Library ;
+:: >>Library<< ;
+REAL Enri ;
+:: >>Enri<< ;
+REAL ppmB ;
+:: >>ppmB<< ;
+REAL TFuel ;
+:: >>TFuel<< ;
+REAL Dmod ;
+:: >>Dmod<< ;
+
+
+*----
+*  Modules
+*----
+MODULE  LIB: END: UTL: ;
+
+*----
+*  Parametres
+*----
+* REAL FuelTemp := 900.0  ;
+REAL FuelDens := 10.4   ;
+REAL CladTemp := 633.0  ;
+REAL ModTemp  := 569.55 ;
+REAL ModDens  := 0.7 ;
+
+
+*----
+*  Calcul des pourcentages massiques
+*----
+REAL M_U4          M_U5          M_U8          M_U6          := 
+     234.040952088 235.043929918 238.050788247 236.045568006 ;
+REAL M_Pu8         M_Pu9         M_Pu0         M_Pu1         :=
+     238.049559894 239.052163381 240.053813545 241.056851456 ;
+REAL M_Pu2         M_Am1         M_O16          :=
+     242.058742611 241.056829144 15.99491461956 ;
+REAL M_B10          M_B11          M_H1H2O      := 
+     10.012936949   11.009305355   1.0078250    ;
+REAL pct_B10          pct_B11 := 
+     0.1990           0.8010  ;
+
+ECHO " Enrichissement = " Enri ; 
+ECHO " ppmB = " ppmB ; 
+EVALUATE ppmB := ppmB 1E-6 * ;
+
+REAL M_H2O  := M_H1H2O 2.0 * M_O16 + ;
+REAL M_Bore := pct_B10 M_B10 * pct_B11 M_B11 * + ;
+REAL M_Mod  := ppmB M_Bore * M_H2O + ;
+REAL N_HH2O := 2.0 M_H1H2O * M_Mod / ; 
+REAL N_OH2O := M_O16 M_Mod / ;
+REAL N_B10H2O := pct_B10 M_B10 * ppmB * M_Mod / ; 
+REAL N_B11H2O := pct_B11 M_B11 * ppmB * M_Mod / ;
+
+REAL M_U   := 1.0 Enri - M_U8 * Enri M_U5 * + ;
+REAL M_tot := 2.0 M_O16 * M_U + ;
+REAL N_U5  := Enri M_U5 * M_tot / ;
+REAL N_U8  := 1.0 Enri - M_U8 * M_tot / ;
+REAL N_O16 := 2.0 M_O16 * M_tot / ;
+
+*ECHO "N U5 = " N_U5 ;
+*ECHO "N U8 = " N_U8 ;
+*ECHO "N O16 = " N_O16 ;
+
+XSLib := LIB: :: 
+   EDIT 0
+   NMIX 6 CTRA APOL
+   SUBG 
+   DEPL LIB: DRAGON FIL: <<Library>>
+   MIXS LIB: DRAGON FIL: <<Library>>
+   MIX 1 <<TFuel>> <<FuelDens>>
+    U234    = U234            0.00  1
+    U235    = U235        <<N_U5>>  1  
+    U236    = U236            0.00  1  
+    U238    = U238        <<N_U8>>  1 
+    Np237   = Np237           0.00  1
+    Pu238   = Pu238           0.00  1  
+    Pu239   = Pu239           0.00  1 
+    Pu240   = Pu240           0.00  1 
+    Pu241   = Pu241           0.00  1 
+    Pu242   = Pu242           0.00  1
+    Pu243   = Pu243           0.00  1 
+    Am241   = Am241           0.00  1
+    Am242m  = Am242m          0.00  1  
+    Am243   = Am243           0.00  1
+    Cm242   = Cm242           0.00  1
+    Cm243   = Cm243           0.00  1
+    Cm244   = Cm244           0.00  1
+    Cm245   = Cm245           0.00  1 
+    O16     = O16         <<N_O16>> 
+   MIX 2 COMB 1 1.0
+   MIX 3 COMB 1 1.0
+   MIX 4 COMB 1 1.0
+   MIX 5 <<CladTemp>> 
+    Cr50 = Cr50      3.30121E-6 
+    Cr52 = Cr52      6.36606E-5
+    Cr53 = Cr53      7.21860E-6
+    Cr54 = Cr54      1.79686E-6
+    Fe54 = Fe54      8.68307E-6
+    Fe56 = Fe56      1.36306E-4
+    Fe57 = Fe57      3.14789E-6
+    Fe58 = Fe58      4.18926E-7
+    Zr90 = Zr90      2.18865E-2 
+    Zr91 = Zr91      4.77292E-3 
+    Zr92 = Zr92      7.29551E-3 
+    Zr94 = Zr94      7.39335E-3 
+    Zr96 = Zr96      1.19110E-3 
+    Sn112 = Sn112    4.68066E-6
+    Sn114 = Sn114    3.18478E-6
+    Sn115 = Sn115    1.64064E-6
+    Sn116 = Sn116    7.01616E-5
+    Sn117 = Sn117    3.70592E-5
+    Sn118 = Sn118    1.16872E-4
+    Sn119 = Sn119    4.14504E-5
+    Sn120 = Sn120    1.57212E-4
+    Sn122 = Sn122    2.23417E-5
+    Sn124 = Sn124    2.79392E-5
+    Hf174 = Hf174    3.54138E-9
+    Hf176 = Hf176    1.16423E-7 
+    Hf177 = Hf177    4.11686E-7
+    Hf178 = Hf178    6.03806E-7 
+    Hf179 = Hf179    3.01460E-7 
+  MIX 6 <<ModTemp>> <<Dmod>> 
+    H1H2O  = H1_H2O    <<N_HH2O>> NOEV 
+    O16H2O = O16       <<N_OH2O>> NOEV
+    B10 = B10          <<N_B10H2O>>  NOEV 
+    B11 = B11          <<N_B11H2O>>  NOEV 
+;
+
+END: ;
+QUIT "LIST" .
