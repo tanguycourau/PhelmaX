@@ -14,7 +14,6 @@ if [ $Sysx = "CYGWIN" ]; then
 	System=`uname -o`
 fi
 if [ $System = "Linux64" ] ; then 
-    EXEC=$HOME/Codes/Version5_beta_ev2420/Dragon/bin/Linux_x86_64/Dragon
     EXEC=$HOME/Codes/Version5.1/Dragon/bin/Linux_x86_64/Dragon
 fi
 if [ $System = "Linux64" ] ; then 

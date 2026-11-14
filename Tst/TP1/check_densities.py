@@ -5,8 +5,6 @@
 m_H1H2O, m_O16, m_U5, m_U8, m_B10, m_B11 = 1.007828e+00, 1.599491e+01, 2.350441e+02,  2.380508e+02, 1.001294e+01, 1.100928e+01
 m_O16H2O = m_O16
 
-
-
 print('Analyse des densités atomiques')
 # Melange 1 ficher Cell.x2m+
 n_U5 =  7.6337E-04
@@ -37,9 +35,8 @@ wgt_B11 = 100*n_B11 * m_B11 / den
 print(f'fractions massiques H1, O16, B10, B11:  {wgt_H1H2O:.5e} {wgt_O16H2O:.5e} {wgt_B10:.5e} {wgt_B11:.5e}')
 
 print(f'densite = {den/NA}')
-
-
-
+print('Données Cell.xm2+ w_H2O w_Bore 9.993500e-01 6.500483e-04')
+print('Données Cell.xm2+ w_HH2O w_OH2O w_B10H2O w_B11H2O 1.118424e-01 8.875076e-01 1.198103e-04 5.302380e-04 ')
 
 
 ## Calcul des propriétés de l'eau
@@ -50,15 +47,15 @@ print(f'densite = {den/NA}')
 # densmod, Cb = 0.7, 1000.
 # densmod = densmod (1+ Cb*1.Oe-6)
 
-
-ppmB = 650.0
+ppmb = 650.0e-06
 pct_B10, pct_B11 = 0.1990 , 0.8010
 m_Bore =  pct_B10 * m_B10 + pct_B11 * m_B11  
 
-m_mod = (m_H1H2O *2 + m_O16H2O)*(1+ppmB*1.0e-6)
+alpha = ppmb/(1-ppmb) # alpha = m_Bore/m_H2O = ppmb/(1-ppmb)
+m_mod = (m_H1H2O *2 + m_O16H2O)*(1+alpha)
 m_H2O = (m_H1H2O *2 + m_O16H2O)
-w_H2O = m_H2O/(m_mod)
-w_Bnat = 1-w_H2O
+w_H2O = m_H2O/m_mod ## 1/(1+alpha)
+w_Bnat = 1-w_H2O ## alpha/(1+alpha)
 
 print(f'w_Bnat/w_H2O (ppm): {w_Bnat/w_H2O*1.0e6}')
 w_H   = 2*m_H1H2O/m_H2O
@@ -66,6 +63,7 @@ w_O   = m_O16H2O/m_H2O
 w_B10 =  pct_B10* m_B10 / m_Bore
 w_B11 =  pct_B11* m_B11 / m_Bore
 
-print(f'fractions massiques H, O, B10 et B11:  {w_H2O*w_H} {w_H2O*w_O} {w_Bnat*w_B10} {w_Bnat*w_B11}')
+print(f'fractions massiques H, O, B10 et B11:  {w_H2O*w_H*100} {w_H2O*w_O*100} {w_Bnat*w_B10*100} {w_Bnat*w_B11*100}')
+print(f'somme des fractions {100*(w_H2O*w_H+ w_H2O*w_O+w_Bnat*w_B10+w_Bnat*w_B11)}')
 
-print(f'somme des fractions {w_H2O*w_H+ w_H2O*w_O+w_Bnat*w_B10+w_Bnat*w_B11}')
+
