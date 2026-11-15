@@ -5,9 +5,11 @@ login couraut - password : voir grenet.fr
 
 Travail réalisé dans le cadre de la nouvelle mouture du cours à partir de 2026
 
+Guides : Lien vers les guides Dragon / Donjon 
 Sce : Directory Source : données de Xavier et Commentaires de Pierre
 Shells : Quelques script à partager
-Tst : Tests réalisés à partir d'adapation des données sources de Xavier
+TP : Tests réalisés à partir d'adapation des données sources de Xavier
+
 
 
 - Install dragon Version 5.1 : https://merlin.polymtl.ca/version5.htm
@@ -16,7 +18,7 @@ Tst : Tests réalisés à partir d'adapation des données sources de Xavier
 - Autre solution via l'AEN en utilisant git-lfs :
   + git clone https://git.oecd-nea.org/dragon/5.1.git
   + git clone https://git.oecd-nea.org/dragon/libraries.git
-  +  git lfs pull -I l_endian/draglibendfb7r1SHEM295_v5p1.gz  
+  + git lfs pull -I l_endian/draglibendfb7r1SHEM295_v5p1.gz  
 
 
 

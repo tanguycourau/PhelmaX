@@ -1,6 +1,6 @@
 *---------------------------------------------------------------------------
 *
-* Parametrisation des XS macro en TFuel et BU
+* Parametrisation des XS macro en BU, Dmod et TFuel
 * 
 *
 *---------------------------------------------------------------------------
@@ -318,11 +318,11 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui representent les tables m
 *---------------------------------------------------------------------------
 * Visualisation et sauvegarde de certains resultats
 *---------------------------------------------------------------------------
-    STRING Name1 := "MCPOMACROTFuel.txt" ;
+    STRING Name1 := "MCPOMACRODmodTFuel.txt" ;
     SEQ_ASCII MCPOMacr :: FILE <<Name1>> ; 
     MCPOMacr := MCPOMACRO ; 
 
-    STRING NameMacBin := 'MCPOMACROTFuel.bin' ;    
+    STRING NameMacBin := 'MCPOMACRODmodTFuel.bin' ;    
     SEQ_BINARY MCPOMacrbin :: FILE <<NameMacBin>> ;   
     MCPOMacrbin := MCPOMACRO ; 
 
