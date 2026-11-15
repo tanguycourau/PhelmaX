@@ -1,9 +1,11 @@
+Date : 2026/11/15
+
 Accès Phelma :
 login couraut - password : voir grenet.fr
 
 Travail réalisé dans le cadre de la nouvelle mouture du cours à partir de 2026
 
-Sce : Directory Source : données de Xavier
+Sce : Directory Source : données de Xavier et Commentaires de Pierre
 Shells : Quelques script à partager
 Tst : Tests réalisés à partir d'adapation des données sources de Xavier
 

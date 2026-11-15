@@ -1,6 +1,8 @@
+2026/11/15
+
 HelloWorld.c2m : modif 2 -> 2.0 pour que cela tourne
 
-Cell.x2m :
+Cell.x2m et CellAutop.x2m :
 + modif bibliothèque pour passer à 99 groupes
 + ajout d'un appel à edi: pour le spectre
 
@@ -15,6 +17,7 @@ Assemblage.x2m :
 MixFuelCell.c2m
 + ajout d'un appel à info pour calculer les densités
   et les fractions massiques
++ ajout du fichier checkdensities.py pour contrôler les densités massiques
 
 Questions : 
 - Fichier MixFuelCell.x2m : intéret à utiliser le module INFO: pour lire dans
