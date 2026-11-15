@@ -1,6 +1,6 @@
 Test MCNP For Cell Comp
 C Bloc Cellule
-C Outside 
+C Outside
 1 0 (-6:5:-4:3:-2:1) imp:n=0
 C Crayon
 10 1 -10.4 -10 6 -5 imp:n=1 TMP = 7.7556E-08
@@ -53,8 +53,7 @@ m2 24050  3.30121E-6 &
 72179    3.01460E-7
 C Moderateur sans bore
 m3 1001.71c 2 8016.71c 1
-C 
+C
 C General Data card
-sdef 
+sdef
 KCODE 1000 1.1 25 60
-

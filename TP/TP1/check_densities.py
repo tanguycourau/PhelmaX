@@ -2,8 +2,8 @@
 """Contrôle des densités calculées par Dragon en sortie de Cell.x2m+
 l'obejctif est de recalculer les densités massiques à partir des densités atomiques fournies en sortie du module EDI
 """
- 
-## Sortie du module info  fichier Cell.x2m+ 
+
+## Sortie du module info  fichier Cell.x2m+
 m_H1H2O, m_O16, m_U5, m_U8, m_B10, m_B11 = 1.007828e+00, 1.599491e+01, 2.350441e+02,  2.380508e+02, 1.001294e+01, 1.100928e+01
 m_O16H2O = m_O16
 
@@ -29,9 +29,9 @@ print('Fin de traitement du mélange 1 : Fuel')
 
 # Melange 6
 n_H1H2O   = 4.8093E-02
-n_O16H2O  = 2.4047E-02 
+n_O16H2O  = 2.4047E-02
 n_B10     = 5.1856E-06
-n_B11     = 2.0873E-05 
+n_B11     = 2.0873E-05
 
 NA = 0.602214 # Avogadro en 10E24
 
@@ -59,7 +59,7 @@ print('Fin de traitement du mélange 6 : Modérateur')
 
 # ppmb = 650.0e-06
 # pct_B10, pct_B11 = 0.1990 , 0.8010
-# m_Bore =  pct_B10 * m_B10 + pct_B11 * m_B11  
+# m_Bore =  pct_B10 * m_B10 + pct_B11 * m_B11
 
 # alpha = ppmb/(1-ppmb) # alpha = m_Bore/m_H2O = ppmb/(1-ppmb)
 # m_mod = (m_H1H2O *2 + m_O16H2O)*(1+alpha)
@@ -75,5 +75,3 @@ print('Fin de traitement du mélange 6 : Modérateur')
 
 # print(f'fractions massiques H, O, B10 et B11:  {w_H2O*w_H*100} {w_H2O*w_O*100} {w_Bnat*w_B10*100} {w_Bnat*w_B11*100}')
 # print(f'somme des fractions {100*(w_H2O*w_H+ w_H2O*w_O+w_Bnat*w_B10+w_Bnat*w_B11)}')
-
-

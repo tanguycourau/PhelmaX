@@ -1,7 +1,7 @@
 *---------------------------------------------------------------------------
 *
 * Premier input DRAGON
-* 
+*
 * Avec procedure "GeoCellule" et "MixFuelCell"
 *
 *---------------------------------------------------------------------------
@@ -14,17 +14,17 @@
                 NXTTracking SYBILTrk  MOCTracking     ! Tracking pour les lignes d'integration
                 XSLib XSLibAutop           ! XS par milieu
                 Pij Flx Edition ;          ! Pij, Flux et Edition
-                 
+
    SEQ_BINARY Lignes  ;                    ! Binaire pour les segments d'integration
    SEQ_ASCII ImgGeo :: FILE 'Fig1.ps' ;
    SEQ_ASCII ImgGeo2 :: FILE 'Fig2.ps' ;   ! Nom fichiers figure
    SEQ_ASCII Edit :: FILE './edit' ;       ! Fichier de sortie pour Edition
-  
+
    PROCEDURE GeoCellule                    ! Fonction pour la construction de la cellule
              MixFuelCell ;                 ! Fonction pour la definition des materiaux
 
 
-   MODULE GEO: PSP: END: NXT: ASM: FLU: DELETE: USS: 
+   MODULE GEO: PSP: END: NXT: ASM: FLU: DELETE: USS:
           SYBILT: EDI:  ;                  ! GEO pour la construction de la geo
                                            ! PSP pour l'edition de figure
                                            ! NXT pour le tracking
@@ -32,7 +32,7 @@
                                            ! FLU pour la resolution du transport
                                            ! USS pour l'autoprotection
                                            ! SYBILT pour le tracking de l'autop
-                                           ! EDI pour l'edition des sorties 
+                                           ! EDI pour l'edition des sorties
 
 *---------------------------------------------------------------------------
 * Definition des variables
@@ -46,34 +46,34 @@
 * Definition de la geometrie
 *---------------------------------------------------------------------------
     GeoCell  := GeoCellule :: ;
-    ECHO "Geometrie OK" ; 
+    ECHO "Geometrie OK" ;
 
     XSLib := MixFuelCell :: <<Library>> <<Enri>> <<ppmB>>  ;
     ECHO "Definition des mixtures OK" ;
 
 *---------------------------------------------------------------------------
-* Tracking Calcul Pij et Calcul Flux 
+* Tracking Calcul Pij et Calcul Flux
 *---------------------------------------------------------------------------
-    NXTTracking Lignes := NXT: GeoCell :: EDIT 0 
+    NXTTracking Lignes := NXT: GeoCell :: EDIT 0
                                           LONG
                                           TISO 7 75.0  ;
-    SYBILTrk := SYBILT: GeoCell :: EDIT 0 DP01 MAXR 500 MAXZ 1000000 ; 
-    ECHO "Calcul Tracking OK" ; 
+    SYBILTrk := SYBILT: GeoCell :: EDIT 0 DP01 MAXR 500 MAXZ 1000000 ;
+    ECHO "Calcul Tracking OK" ;
 
     * ImgGeo2 := PSP: NXTTracking :: EDIT 1
     *                              TYPE MIXTURE ;
-    XSLibAutop := USS: XSLib SYBILTrk :: EDIT 0 PASS 3 MAXST 100 ; 
+    XSLibAutop := USS: XSLib SYBILTrk :: EDIT 0 PASS 3 MAXST 100 ;
     ECHO "Calcul Autop OK" ;
 
-    Pij := ASM: XSLibAutop NXTTracking Lignes :: EDIT 0 ; 
-    ECHO "Calcul Pij OK" ; 
-    Flx := FLU: Pij XSLibAutop NXTTracking :: TYPE K ; 
+    Pij := ASM: XSLibAutop NXTTracking Lignes :: EDIT 0 ;
+    ECHO "Calcul Pij OK" ;
+    Flx := FLU: Pij XSLibAutop NXTTracking :: TYPE K ;
 
     Edition := EDI: Flx XSLibAutop NXTTracking :: EDIT 5
     MERG COMP COND 20.0E6 SAVE ;
     Flx Edition := DELETE: Flx Edition ;
-    
-    Flx := FLU: Pij XSLibAutop NXTTracking :: TYPE B B1 SIGS ; 
+
+    Flx := FLU: Pij XSLibAutop NXTTracking :: TYPE B B1 SIGS ;
     Edition := EDI: Flx XSLibAutop NXTTracking :: EDIT 5
     MERG COMP COND 20.0E6 SAVE ;
     Edition := DELETE: Edition ;
@@ -85,8 +85,8 @@
     Edit := Edition ;
 
     Pij := DELETE: Pij ;
-    SYBILTrk := DELETE: SYBILTrk ; 
+    SYBILTrk := DELETE: SYBILTrk ;
     Lignes := DELETE: Lignes ;
-    
-ECHO "terminee" ; 
+
+ECHO "terminee" ;
 END: ;

@@ -10,12 +10,12 @@
 *---------------------------------------------------------------------------
 
     LINKED_LIST GEOMETRY1 GEOMETRY2 GEOMETRY3 ;     ! Les objets qui définissent les geometries
-    
+
     SEQ_ASCII ImgGeo1 :: FILE 'Fig1.ps' ;
-    SEQ_ASCII ImgGeo2 :: FILE 'Fig2.ps' ; 
+    SEQ_ASCII ImgGeo2 :: FILE 'Fig2.ps' ;
     SEQ_ASCII ImgGeo3 :: FILE 'Fig3.ps' ; ! Nom fichiers des figures
 
-    MODULE GEO:                           ! Pour construire les geometries 
+    MODULE GEO:                           ! Pour construire les geometries
            PSP:                           ! Pour generer l'image au format PS.
            END: ;
 
@@ -28,12 +28,12 @@
     REAL R1 := R4 0.5 SQRT * ;
     REAL R2 := R4 0.8 SQRT * ;
     REAL R3 := R4 0.95 SQRT * ;
-    REAL RG := 0.4798 ; 
+    REAL RG := 0.4798 ;
 
 *---------------------------------------------------------------------------
 * Construction des geometrie
 *---------------------------------------------------------------------------
-    
+
     GEOMETRY1 := GEO: :: CARCEL 2
                          X- REFL X+ REFL MESHX 0.0 1.26472
                          Y- REFL Y+ REFL MESHY 0.0 1.26472
@@ -58,6 +58,6 @@
     ImGeo1 := PSP: GEOMETRY1 :: TYPE MIXTURE ;
     ImGeo2 := PSP: GEOMETRY2 :: TYPE MIXTURE ;
     ImGeo3 := PSP: GEOMETRY2 :: TYPE MIXTURE ;
-    
+
 
     END: ;

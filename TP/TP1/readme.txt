@@ -19,9 +19,9 @@ MixFuelCell.c2m
   et les fractions massiques
 + ajout du fichier checkdensities.py pour contrôler les densités massiques
 
-Questions : 
+Questions :
 - Fichier MixFuelCell.x2m : intéret à utiliser le module INFO: pour lire dans
   les bibliothèques les masses isotopiques et calculer les densités.
 - Intérêt à utiliser le module EDI: pour afficher un bilan de Tx de réaction et
   calculer les XS.
-- Intérêt à comparer les spectres avec et sans bore de Assemblage.x2m 
+- Intérêt à comparer les spectres avec et sans bore de Assemblage.x2m
