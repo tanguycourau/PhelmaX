@@ -34,7 +34,7 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui representent les tables m
 *---------------------------------------------------------------------------
     STRING Library := "L99j3p1"  ;         ! Pour les donnees nucleaire
     REAL Enri      := 3.25E-2    ;
-    REAL ppmB      := 0.0        ;
+    REAL ppmB      := 650.0      ;
     REAL TFuel     := 300.0      ;
     REAL Dmod      := 0.7        ;
     REAL Power     := 36.00      ;         ! Pour la normalisation de puissance
@@ -139,7 +139,8 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui representent les tables m
       
             *---- 
             * PIJ and flux calculation 
-            *---- 
+            *----
+            ECHO "$Flux calculation - Time, Dmod, Tfuel " Tend Dmod TFuel ;
             Pij := ASM: XSLibAutop NXTTracking Lignes :: EDIT 0 ; 
             Flx := FLU: Flx Pij XSLibAutop NXTTracking :: TYPE B B1 SIGS ; 
             Pij := DELETE: Pij ; 
@@ -154,7 +155,7 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui representent les tables m
             *---- 
             Evol XSLibAutop := EVO: Evol XSLibAutop Flx NXTTracking :: 
                 SAVE <<Tend>> DAY POWR <<Power>> ; 
-     
+            
             MCPOMACRO := COMPO: MCPOMACRO EditionMacro Evol XSLibAutop :: 
                 STEP UP 'UOX'    
                 Dmod <<Dmod>>    
@@ -201,7 +202,7 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui representent les tables m
 * On refait le calcul pour une nouvelle de densité modérateur
 * Boucle sur la Temperature fuel
 *---------------------------------------------------------------------------
-*   EVALUATE ppmB := 1800.0 ;
+*   EVALUATE ppmB := 650.0 ;
     EVALUATE Dmod := 1.0 ;
     EVALUATE istep_TFuel := 0 ; 
     EVALUATE TFuel := 300.0 ;
@@ -259,7 +260,8 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui representent les tables m
       
             *---- 
             * PIJ and flux calculation 
-            *---- 
+            *----
+	    ECHO "$Flux calculation - Time, Dmod, Tfuel " Tend Dmod TFuel ;
             Pij := ASM: XSLibAutop NXTTracking Lignes :: EDIT 0 ; 
             Flx := FLU: Flx Pij XSLibAutop NXTTracking :: TYPE B B1 SIGS ; 
             Pij := DELETE: Pij ; 
