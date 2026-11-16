@@ -10,11 +10,11 @@
 
 
 Analyse du fichier résultat `EvoAssParamTfDmod.x2m+MCPOMACRODmodTFuel.txt` 
- - PARKEY : burnup                 Dmod            T-FUEL 
- - PVAL   : #1/26 [0.0 79200.]     #2/2 [0.7 1.0]  #3/3 [300. 900. 1500.]
+ - PARKEY : burnup               T-FUEL                  Dmod 
+ - PVAL   : #1/26 [0.0 79200.]   #2/3 [300. 900. 1500.]  #3/2 [0.7 1.0] 
 
 
-La structure du fichier est la suivante : pval2 (Dmod), pval3 (Tfuel), pval1 (Bu)  
+La structure du fichier est  : pval3 (Dmod), pval2 (Tfuel), pval1 (Bu)  
 
 Fichier kinf :
 grep -i infinity -A1 EvoAssParamDmodTf.x2m+MCPOMACRODmodTFuel.txt  | grep -v INF > kinf.txt
