@@ -17,6 +17,8 @@ P3 : Tfuel
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+
 # param 1
 bu = np.array([
     0.00000000E+00, 8.99999008E+01, 1.79999786E+02, 3.59999573E+02, 7.19999268E+02, 
@@ -49,5 +51,6 @@ df.swaplevel(axis=1)[300.]
 
 
 
-#df = pd.DataFrame(kinf.reshape(-1, 26).T)
-#df = pd.DataFrame(kinf.reshape(-1, 26).T)
+df.drop(['Time'], axis=1).plot(x='Bu', grid='True', title='kinfinite')
+
+plt.show()
