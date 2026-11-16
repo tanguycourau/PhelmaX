@@ -11,8 +11,8 @@ grep -i -E '\$|infinite'  EvoAssParamDmodTf.x2m+ > kinf.out
 Construction de la compo
 grep -i infinity -A1 EvoAssParamDmodTf.x2m+MCPOMACRODmodTFuel.txt  | grep -v INF > kinf.txt
 P1 : bu
-P2 : Dmod
-P3 : Tfuel
+P2 : T-FUEL
+P3 : Dmod
 """
 
 import numpy as np
