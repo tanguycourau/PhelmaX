@@ -31,10 +31,23 @@ dmod = np.array([0.7, 1.0])
 tfuel = np.array([3.00000000E+02, 9.00000000E+02, 1.50000000E+03])
 filename = 'kinf.txt'
 kinf = np.loadtxt(filename)
+
 cols = pd.MultiIndex.from_product(
      [dmod, tfuel],
      names=["Dmod", "Tfuel"])
-df = pd.DataFrame(kinf.reshape(-1, 26).T, columns=cols)
-df.index=bu/36
-df.index.name='time'
+df = pd.DataFrame(kinf.reshape(-1, 26).T, columns=cols
+                 )
+df.insert(0, 'Bu', bu.round())
+df.insert(0, 'Time', (bu/36).round())
 print(df)
+
+df[['Time', 0.7]]
+df[(0.7, 300)]
+df[0.7]
+df.swaplevel(axis=1)[300.]
+
+
+
+
+#df = pd.DataFrame(kinf.reshape(-1, 26).T)
+#df = pd.DataFrame(kinf.reshape(-1, 26).T)
