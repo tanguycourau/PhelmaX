@@ -1,25 +1,24 @@
 # -*-coding:utf-8 -*-
 """Analyse d'un fichier compo
 Ordre des calculs dans le fichier EvoAssParamDmodTf.x2m+ :
-on fait eux boucles imbriquées en faisant varier le BU et la Tfuel
-- La première avec Dmod = 0.7
-- La seconde avec Dmod = 1.0
-grep -i -E '\$|infinite'  EvoAssParamDmodTf.x2m+ > kinf.out
+on fait des boucles imbriquées en faisant varier : BU, Tfuel, Dmod, CB 
+grep -i -E '\$|infinite'  EvoAssParamCbDmodTf.x2m+ > kinf.out
 
 
 
 Construction de la compo
-grep -i infinity -A1 EvoAssParamDmodTf.x2m+MCPOMACRODmodTFuel.txt  | grep -v INF > kinf.txt
-P1 : bu
-P2 : T-FUEL
-P3 : Dmod
+grep -i infinity -A1 EvoAssParamCbDmodTf.x2m+MCPOMACROCbDmodTFuel.txt  | grep -v INF > kinf.txt
+pval1 : bu
+pval2 : T-FUEL
+pval3 : Dmod
+pval4 CB
 """
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# param 1
+# pval 1: cf  EvoAssParamCbDmodTf.x2m+MCPOMACROCbDmodTFuel.txt
 bu = np.array([
     0.00000000E+00, 8.99999008E+01, 1.79999786E+02, 3.59999573E+02, 7.19999268E+02, 
     1.07999890E+03, 1.43999829E+03, 1.79999768E+03, 3.59999438E+03, 5.39999072E+03, 
@@ -27,27 +26,33 @@ bu = np.array([
     2.15999512E+04, 2.51999453E+04, 3.05999336E+04, 3.59999219E+04, 4.13999180E+04, 
     4.67999219E+04, 5.21999180E+04, 5.75999219E+04, 6.47999258E+04, 7.19999297E+04, 
     7.91999375E+04])
-# param 2
-dmod = np.array([0.7, 1.0])
-# param 3
+# pval 2
 tfuel = np.array([3.00000000E+02, 9.00000000E+02, 1.50000000E+03])
+# pval 3
+dmod = np.array([0.7, 1.0])
+# pval 4
+cb =np.array([0.0, 1200.0, 2400.0])
+
 filename = 'kinf.txt'
 kinf = np.loadtxt(filename)
 
 cols = pd.MultiIndex.from_product(
-     [dmod, tfuel],
-     names=["Dmod", "Tfuel"])
-df = pd.DataFrame(kinf.reshape(-1, 26).T, columns=cols
-                 )
+     [tfuel, dmod, cb],
+     names=['Tfuel', 'Dmod', 'Cb'])
+df = pd.DataFrame(kinf.reshape(-1, 26).T, columns=cols)
 df.insert(0, 'Bu', bu.round())
 df.insert(0, 'Time', (bu/36).round())
+
+
+print(df.columns)
 print(df)
 
-df[['Time', 0.7]]
-df[(0.7, 300)]
-df[0.7]
-df.swaplevel(axis=1)[300.]
-
+#             Tfuel 
+# df[['Time', 1500]]
+#     Tfuel Dmod  Cb
+# df[(1500, 0.7, 1200)]
+# Tf
+# df[900]
 
 
 

@@ -158,7 +158,7 @@ WHILE istep_ppmB nstep_ppmB < DO
             *----
             * PIJ and flux calculation
             *----
-            ECHO "$Flux calculation - Time, Dmod, Tfuel " Tend Dmod TFuel ;
+            ECHO "$Flux calculation - Time, Tfuel, Dmod, CB " Tend TFuel Dmod ppmB ;
             Pij := ASM: XSLibAutop NXTTracking Lignes :: EDIT 0 ;
             Flx := FLU: Flx Pij XSLibAutop NXTTracking :: TYPE B B1 SIGS ;
             Pij := DELETE: Pij ;
