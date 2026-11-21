@@ -1,6 +1,6 @@
 *---------------------------------------------------------------------------
 *
-* Parametrisation des XS macro en BU, Dmod et TFuel
+* parametrisation des XS macro en BU, Dmod et TFuel
 *
 *
 *---------------------------------------------------------------------------
@@ -11,54 +11,54 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui representent les tables m
 * Declaration des objets, des fichiers et des procedures
 *---------------------------------------------------------------------------
 
-   LINKED_LIST GeoCell GeoAss GeoBis       ! Geometrie consideree
-                NXTTracking SYBILTrk       ! Tracking pour les lignes d'integration
-                XSLib XSLibAutop           ! XS par milieu
-                Pij Flx                    ! Pij et Flux
-                EditionMicro EditionMacro  ! MCPO Macro
-                Evol ;
+LINKED_LIST GeoCell GeoAss GeoBis       ! Geometrie consideree
+             NXTTracking SYBILTrk       ! Tracking pour les lignes d'integration
+             XSLib XSLibAutop           ! XS par milieu
+             Pij Flx                    ! Pij et Flux
+             EditionMicro EditionMacro  ! MCPO Macro
+             Evol ;
 
-   SEQ_BINARY Lignes ;                     ! Binaire pour les segments d'integration
-   SEQ_ASCII Fig1.ps Fig2.ps Fig3.ps  ;    ! Nom fichier figure
-
-
-   PROCEDURE GeoCellule Geometries         ! Fonction pour la construction de la cellule
-             MixFuelCellD ;                ! Fonction pour la definition des materiaux
+SEQ_BINARY Lignes ;                     ! Binaire pour les segments d'integration
+SEQ_ASCII Fig1.ps Fig2.ps Fig3.ps  ;    ! Nom fichier figure
 
 
-   MODULE GEO: PSP: END: NXT: ASM: FLU: DELETE: USS:
-          SYBILT: EDI: EVO: COMPO:    ;
-   
+PROCEDURE GeoCellule Geometries         ! Fonction pour la construction de la cellule
+          MixFuelCellD ;                ! Fonction pour la definition des materiaux
+
+
+MODULE GEO: PSP: END: NXT: ASM: FLU: DELETE: USS:
+       SYBILT: EDI: EVO: COMPO: ;
+
 *---------------------------------------------------------------------------
 * Definition des variables
 *---------------------------------------------------------------------------
-    STRING Library := "L99j3p1"  ;         ! Pour les donnees nucleaire
-    REAL Enri      := 3.25E-2    ;
-    REAL ppmB      := 0.         ;
-    REAL TFuel     := 300.0      ;
-    REAL Dmod      := 0.7        ;
-    REAL Power     := 36.00      ;         ! Pour la normalisation de puissance
-    REAL Tend      := 0.0        ;         ! Pas de temps final
-    INTEGER nstep  := 25         ;         ! Nb pas de temps
-    INTEGER istep  := 0          ;         ! Indice pas de temps
-    REAL Delt      := 2.5        ;         ! pas de temps
-    INTEGER nstep_Tfuel  := 3    ;         ! Nb pas de Temperature 300 900 1500
-    INTEGER istep_TFuel  := 0    ;         ! Indice pas de T
-    INTEGER nstep_Dmod  := 2     ;         ! Nb pas de Densitemoderateur 0.7 1.0
-    INTEGER istep_Dmod  := 0     ;         ! Indice pas de Dmod
-    INTEGER nstep_ppmB  := 3     ;         ! Nb pas de Cb 0. 1200. 2400.0
-    INTEGER istep_ppmB  := 0     ;         ! Indice pas de Cb
+STRING Library := "L99j3p1"  ;         ! Pour les donnees nucleaire
+REAL Enri      := 3.25E-2    ;
+REAL ppmB      := 0.         ;
+REAL TFuel     := 300.0      ;
+REAL Dmod      := 0.7        ;
+REAL Power     := 36.00      ;         ! Pour la normalisation de puissance
+REAL Tend      := 0.0        ;         ! Pas de temps final
+INTEGER nstep  := 25         ;         ! Nb pas de temps
+INTEGER istep  := 0          ;         ! Indice pas de temps
+REAL Delt      := 2.5        ;         ! pas de temps
+INTEGER nstep_Tfuel  := 3    ;         ! Nb pas de Temperature 300 900 1500
+INTEGER istep_TFuel  := 0    ;         ! Indice pas de T
+INTEGER nstep_Dmod  := 2     ;         ! Nb pas de Densitemoderateur 0.7 1.0
+INTEGER istep_Dmod  := 0     ;         ! Indice pas de Dmod
+INTEGER nstep_ppmB  := 3     ;         ! Nb pas de Cb 0. 1200. 2400.0
+INTEGER istep_ppmB  := 0     ;         ! Indice pas de Cb
 
-    *----
-    *  25 steps loop from the beginning
-    *  by 2.5 days from  0    to    5 days (0, 1, 2)
-    *  by 5   days from  5    to   10 days (3)
-    *  by 10  days from  10   to   50 days (4, 5, 6, 7)
-    *  by 50  days from  50   to  300 days (8, 9, 10, 11, 12)
-    *  by 100 days from  300  to  700 days (13, 14, 15, 16)
-    *  by 150 days from  700  to 1600 days (17, 18, 19, 20, 21, 22)
-    *  by 200 days from  1600 to 2000 days (23, 24)
-    *----
+*----
+*  25 steps loop from the beginning
+*  by 2.5 days from  0    to    5 days (0, 1, 2)
+*  by 5   days from  5    to   10 days (3)
+*  by 10  days from  10   to   50 days (4, 5, 6, 7)
+*  by 50  days from  50   to  300 days (8, 9, 10, 11, 12)
+*  by 100 days from  300  to  700 days (13, 14, 15, 16)
+*  by 150 days from  700  to 1600 days (17, 18, 19, 20, 21, 22)
+*  by 200 days from  1600 to 2000 days (23, 24)
+*----
 
 *---------------------------------------------------------------------------
 * Definition de la geometrie
@@ -70,17 +70,16 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui representent les tables m
 *---------------------------------------------------------------------------
 * Initialisation des COMPO
 *---------------------------------------------------------------------------
-    MCPOMACRO := COMPO: ::
-        EDIT 0
-        STEP UP 'UOX'
-        MAXCAL 1
-        COMM 'Evolution homogeneised assembly' ENDC
-        PARA 'burnup'   IRRA
-        PARA 'T-FUEL'   VALU REAL
-        PARA 'Dmod'     VALU REAL
-        PARA 'CB'       VALU REAL
-        INIT ;
-
+MCPOMACRO := COMPO: ::
+    EDIT 0
+    STEP UP 'UOX'
+    MAXCAL 1
+    COMM 'Evolution homogeneised assembly' ENDC
+    PARA 'burnup'   IRRA
+    PARA 'T-FUEL'   VALU REAL
+    PARA 'Dmod'     VALU REAL
+    PARA 'CB'       VALU REAL
+    INIT ;
 *---------------------------------------------------------------------------
 * Tracking Calcul
 *---------------------------------------------------------------------------
@@ -92,20 +91,20 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui representent les tables m
 * Boucle sur la Cb
 *---------------------------------------------------------------------------
 WHILE istep_ppmB nstep_ppmB < DO 
- EVALUATE istep_Dmod  := 0  ;
- EVALUATE Dmod  := 0.7  ;
+    EVALUATE istep_Dmod  := 0  ;
+    EVALUATE Dmod  := 0.7  ;
 
 *---------------------------------------------------------------------------
 * Boucle sur la Densite modérateur
 *---------------------------------------------------------------------------
- WHILE istep_Dmod nstep_Dmod < DO
-  EVALUATE istep_TFuel  := 0  ;
-  EVALUATE TFuel  := 300.  ;
+    WHILE istep_Dmod nstep_Dmod < DO
+      EVALUATE istep_TFuel  := 0  ;
+      EVALUATE TFuel  := 300.  ;
 
 *---------------------------------------------------------------------------
 * Boucle sur la Temperature fuel
 *---------------------------------------------------------------------------
-    WHILE istep_TFuel nstep_Tfuel < DO
+      WHILE istep_TFuel nstep_Tfuel < DO
         EVALUATE istep Delt :=    0  2.5 ;                 ! Initialisation pas de temps
         EVALUATE Tend := 0.0 ;                             ! Initialisation pas de temps
 
@@ -181,7 +180,6 @@ WHILE istep_ppmB nstep_ppmB < DO
                 Dmod <<Dmod>>           
                 T-FUEL <<TFuel>>
                 SET <<Tend>> DAY ;
-
             *----
             *  update time steps
             *----
@@ -205,20 +203,15 @@ WHILE istep_ppmB nstep_ppmB < DO
                 *  200 days from 1600 to 2000
                 EVALUATE Delt   :=  200.0 ;
             ENDIF ;
-
         ENDWHILE ;
-
-
         Flx XSLib XSLibAutop EditionMacro Evol := DELETE:
         Flx XSLib XSLibAutop EditionMacro Evol ;
-
         EVALUATE istep_TFuel := istep_TFuel 1 +  ;
         EVALUATE TFuel := TFuel 600.0 + ;
-
+      ENDWHILE ;
+      EVALUATE istep_Dmod := istep_Dmod 1 +  ;
+      EVALUATE Dmod := Dmod 0.3 + ;
     ENDWHILE ;
-    EVALUATE istep_Dmod := istep_Dmod 1 +  ;
-    EVALUATE Dmod := Dmod 0.3 + ;
-  ENDWHILE ;
   EVALUATE istep_ppmB := istep_ppmB 1 +  ;
   EVALUATE ppmB := ppmB  1200. + ;
   ENDWHILE ;
@@ -228,10 +221,8 @@ WHILE istep_ppmB nstep_ppmB < DO
   STRING Name1 := "MCPOMACROCbDmodTFuel.txt" ;
   SEQ_ASCII MCPOMacr :: FILE <<Name1>> ;
   MCPOMacr := MCPOMACRO ;
-
   STRING NameMacBin := 'MCPOMACROCbDmodTFuel.bin' ;
   SEQ_BINARY MCPOMacrbin :: FILE <<NameMacBin>> ;
   MCPOMacrbin := MCPOMACRO ;
-
 ECHO "terminee" ;
 END: ;
