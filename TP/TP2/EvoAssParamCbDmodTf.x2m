@@ -28,13 +28,13 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui representent les tables m
 
    MODULE GEO: PSP: END: NXT: ASM: FLU: DELETE: USS:
           SYBILT: EDI: EVO: COMPO:    ;
-
+   
 *---------------------------------------------------------------------------
 * Definition des variables
 *---------------------------------------------------------------------------
     STRING Library := "L99j3p1"  ;         ! Pour les donnees nucleaire
     REAL Enri      := 3.25E-2    ;
-    REAL ppmB      := 650.0      ;
+    REAL ppmB      := 0.         ;
     REAL TFuel     := 300.0      ;
     REAL Dmod      := 0.7        ;
     REAL Power     := 36.00      ;         ! Pour la normalisation de puissance
@@ -46,6 +46,8 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui representent les tables m
     INTEGER istep_TFuel  := 0    ;         ! Indice pas de T
     INTEGER nstep_Dmod  := 2     ;         ! Nb pas de Densitemoderateur 0.7 1.0
     INTEGER istep_Dmod  := 0     ;         ! Indice pas de Dmod
+    INTEGER nstep_ppmB  := 3     ;         ! Nb pas de Cb 0. 1200. 2400.0
+    INTEGER istep_ppmB  := 0     ;         ! Indice pas de Cb
 
     *----
     *  25 steps loop from the beginning
@@ -76,6 +78,7 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui representent les tables m
         PARA 'burnup'   IRRA
         PARA 'T-FUEL'   VALU REAL
         PARA 'Dmod'     VALU REAL
+        PARA 'CB'       VALU REAL
         INIT ;
 
 *---------------------------------------------------------------------------
@@ -86,11 +89,18 @@ LINKED_LIST MCPOMACRO MCPOMICRO ;          ! Objet qui representent les tables m
     ECHO "Calcul Tracking OK" ;
 
 *---------------------------------------------------------------------------
+* Boucle sur la Cb
+*---------------------------------------------------------------------------
+WHILE istep_ppmB nstep_ppmB < DO 
+ EVALUATE istep_Dmod  := 0  ;
+ EVALUATE Dmod  := 0.7  ;
+
+*---------------------------------------------------------------------------
 * Boucle sur la Densite modérateur
 *---------------------------------------------------------------------------
-WHILE istep_Dmod nstep_Dmod < DO
- EVALUATE istep_TFuel  := 0  ;
- EVALUATE TFuel  := 300.  ;
+ WHILE istep_Dmod nstep_Dmod < DO
+  EVALUATE istep_TFuel  := 0  ;
+  EVALUATE TFuel  := 300.  ;
 
 *---------------------------------------------------------------------------
 * Boucle sur la Temperature fuel
@@ -128,6 +138,7 @@ WHILE istep_Dmod nstep_Dmod < DO
 
         MCPOMACRO := COMPO: MCPOMACRO EditionMacro Evol XSLibAutop ::
             STEP UP 'UOX'
+            CB   <<ppmB>>
             Dmod <<Dmod>>
             T-FUEL <<TFuel>>        
             SET <<Tend>> DAY ;
@@ -166,6 +177,7 @@ WHILE istep_Dmod nstep_Dmod < DO
 
             MCPOMACRO := COMPO: MCPOMACRO EditionMacro Evol XSLibAutop ::
                 STEP UP 'UOX'
+                CB   <<ppmB>>
                 Dmod <<Dmod>>           
                 T-FUEL <<TFuel>>
                 SET <<Tend>> DAY ;
@@ -203,20 +215,23 @@ WHILE istep_Dmod nstep_Dmod < DO
         EVALUATE istep_TFuel := istep_TFuel 1 +  ;
         EVALUATE TFuel := TFuel 600.0 + ;
 
-     ENDWHILE ;
-EVALUATE istep_Dmod := istep_Dmod 1 +  ;
-EVALUATE Dmod := Dmod 0.3 + ;
-ENDWHILE ;
+    ENDWHILE ;
+    EVALUATE istep_Dmod := istep_Dmod 1 +  ;
+    EVALUATE Dmod := Dmod 0.3 + ;
+  ENDWHILE ;
+  EVALUATE istep_ppmB := istep_ppmB 1 +  ;
+  EVALUATE ppmB := ppmB  1200. + ;
+  ENDWHILE ;
 *---------------------------------------------------------------------------
 * Visualisation et sauvegarde de certains resultats
 *---------------------------------------------------------------------------
-    STRING Name1 := "MCPOMACRODmodTFuel.txt" ;
-    SEQ_ASCII MCPOMacr :: FILE <<Name1>> ;
-    MCPOMacr := MCPOMACRO ;
+  STRING Name1 := "MCPOMACROCbDmodTFuel.txt" ;
+  SEQ_ASCII MCPOMacr :: FILE <<Name1>> ;
+  MCPOMacr := MCPOMACRO ;
 
-    STRING NameMacBin := 'MCPOMACRODmodTFuel.bin' ;
-    SEQ_BINARY MCPOMacrbin :: FILE <<NameMacBin>> ;
-    MCPOMacrbin := MCPOMACRO ;
+  STRING NameMacBin := 'MCPOMACROCbDmodTFuel.bin' ;
+  SEQ_BINARY MCPOMacrbin :: FILE <<NameMacBin>> ;
+  MCPOMacrbin := MCPOMACRO ;
 
 ECHO "terminee" ;
 END: ;
