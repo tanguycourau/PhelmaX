@@ -1,0 +1,188 @@
+*---------------------------------------------------------------------------
+*
+* Premier calcul de coeur UOX
+* 1 calcul de flux / keff -> Calcul des Temperatures et de la nappe de flux
+* A contre reaction 
+* 100% UOX
+*
+*---------------------------------------------------------------------------
+
+
+*---------------------------------------------------------------------------
+* Declaration des objets, des fichiers et des procedures
+*---------------------------------------------------------------------------
+
+    LINKED_LIST GeoCalc GeoRef 
+                Track Fmap
+                McpoFuelMac
+                McpoRefl
+                MacroFuel
+                Macrotot
+                MacroRefl
+                System
+                Flux
+                STORE
+                Power
+                Thermo
+		FluxStore
+                ; 
+
+    MODULE   TRIVAT: CRE: PSP:  DELETE: END: THM: SIM:
+             MACINI: FLUD: TRIVAA: GREP: MSTR: FLPOW: UTL: ; 
+
+    PROCEDURE GeoCore GeoFuelMapT InitFMapTF SetMacFuelT ;
+    
+*---------------------------------------------------------------------------
+* Options des calculs
+*---------------------------------------------------------------------------
+    STRING GeoType  := "UOX" ;       ! A transformer en "HYB" pour coeur UOX/MOX dans les seances libres                 
+    REAL   BUCoeur := 0. ;         ! BU Total du coeur en MWj/t  
+    REAL ppmB := 100.0 ;                 ! Attention : la MCPO a ete construite avec 0 bore. 
+                                       ! Les valeurs ne sont pas prises en comtes
+    REAL TFuel := 900.0 ;
+    REAL Keff ;
+    REAL CorePower := 2700.0 ;          ! Puissance en MW
+
+    REAL RC   := 4.1E-3 ;
+    REAL RGI  := 4.2E-3 ;
+    REAL RGE  := 4.8E-3 ;
+    REAL RTGE := 6.02E-3 ;
+    
+    REAL FluxTarget := 1E-6 ; 
+
+*---------------------------------------------------------------------------
+* Donnees macro issues des calculs assemblages
+*---------------------------------------------------------------------------
+    XSM_FILE   CPOREFL :: FILE 'CPOREFL.xsm' ; 
+    McpoRefl := CPOREFL ; 
+   
+*---------------------------------------------------------------------------
+* Geometries 
+* GeoRef : Geometrie de reference
+* GeoCalc : Geometrie de calcul 
+*---------------------------------------------------------------------------
+    INTEGER Splitx Splitz   ; 
+    REAL LPitch Lame := 1.25984 0.25 ; 
+    INTEGER iPavX := 17 ;  
+    REAL    dx   := iPavX I_TO_R LPitch * 2.0 Lame * + ; 
+    INTEGER MaxR ; 
+ 
+    EVALUATE Splitx Splitz :=  1 1 ;                    
+    EVALUATE MaxR := iPavX iPavX * 19 * Splitx * Splitx * Splitz * ; 
+ 
+    GeoRef GeoCalc := GeoCore :: <<Splitx>> <<Splitz>> <<MaxR>> <<dx>>  
+                                 <<GeoType>> ; 
+     
+    Track := TRIVAT: GeoRef :: MAXR <<MaxR>> MCFD 2 ; 
+    GeoRef := DELETE: GeoRef ;  
+    Fmap GeoCalc := GeoFuelMapT GeoCalc :: <<Splitx>> <<Splitz>> 
+                                         <<dx>> <<GeoType>> <<ppmB>> ;
+                                         
+*---------------------------------------------------------------------------
+* Chargement des tables multiparametrees 
+*---------------------------------------------------------------------------
+                                      
+    MacroRefl := CRE: McpoRefl :: EDIT 0 NMIX 2  
+                                  READ COMPO McpoRefl  
+                                  MIX  1 'MIXREFL    1'  
+                                  ENDMIX ;
+    
+    SEQ_BINARY CPOFuelMac :: FILE 'MCPOTFuel.bin' ;  ! Section Tabulee en BU&TFuel&Cb 
+    McpoFuelMac := CPOFuelMac ;  
+    
+    Fmap := InitFMapTF Fmap :: <<BUCoeur>> <<ppmB>> ;
+*---------------------------------------------------------------------------
+* Calcul du keff et du flux sans mise a jour des temperatures
+*---------------------------------------------------------------------------
+    MacroFuel := SetMacFuelT McpoFuelMac Fmap :: <<ppmB>> ;
+    Macrotot GeoCalc := MACINI: GeoCalc MacroRefl MacroFuel ;
+    System := TRIVAA: Macrotot Track ;
+    
+    Flux := FLUD: System Track ::
+            EDIT 0 VAR1 10 1 ADI 1 EXTE 200 <<FluxTarget>> ;
+
+*---------------------------------------------------------------------------
+* Mise a jour des temperatures
+*---------------------------------------------------------------------------
+    
+    Power Fmap := FLPOW: Fmap Flux Track GeoCalc
+    :: EDIT 0 PTOT <<CorePower>> ;   
+  
+     ! Fmap := UTL: Fmap :: STEP UP "PARAM" DUMP ;  
+     
+     Thermo Fmap := THM: Fmap :: 
+            EDIT 0
+            RELAX 0.2
+            INLET 1.550000E+07 560.0
+            SPEED 6.14
+            RADIUS <<RC>> <<RGI>> <<RGE>> <<RTGE>>
+            ASSMB 264 25 
+            ;
+     ! Fmap := UTL: Fmap :: STEP UP "PARAM" DUMP ;
+  
+    Fmap := UTL: Fmap :: STEP UP "PARAM" STEP AT 2 
+        COPY "P-VALUE" "P-VALUE-OLD" ;
+    
+    *----
+    * Ici, on a fait une itearion neutronique -> thermohydraulique... 
+    * Il faut refaire ce processus jusqu'a convergence
+    *---  
+    
+    INTEGER MaxIter := 20 ;
+    REAL TErrCrit := 10.0 ;
+    REAL TErrMax TErrAvg := 0.0 0.0 ;
+    LOGICAL conv := $False_L ;
+    INTEGER i_conv := 0 ;
+    
+    REPEAT
+    
+        EVALUATE i_conv := i_conv 1 + ;
+        
+        MacroFuel Macrotot System := DELETE: MacroFuel Macrotot System ;
+        Flux Power Thermo := DELETE: Flux Power Thermo ;
+        
+        MacroFuel := SetMacFuelT McpoFuelMac Fmap :: <<ppmB>> ;
+        Macrotot GeoCalc := MACINI: GeoCalc MacroRefl MacroFuel ;
+        System := TRIVAA: Macrotot Track ;
+        Flux := FLUD: System Track ::
+                EDIT 0 VAR1 10 1 ADI 1 EXTE 200 <<FluxTarget>> ;
+
+        Fmap := UTL: Fmap :: STEP UP "PARAM" DUMP ;
+        
+	Power Fmap := FLPOW: Fmap Flux Track GeoCalc       ! Calcul de la nouvelle nappe de puissance
+                   :: EDIT 0 PTOT <<CorePower>> ;
+        Thermo Fmap := THM: Fmap ::                        ! Calcul de la nouvelle distribution de Temperature
+                       EDIT 0
+                       RELAX 0.2
+                       INLET 1.550000E+07 560.0
+                       SPEED 6.14
+                       RADIUS <<RC>> <<RGI>> <<RGE>> <<RTGE>>
+                       ASSMB 264 25 
+                       ;   
+        
+        Fmap := UTL: Fmap :: STEP UP "PARAM" DUMP ;
+        
+	ECHO "DEBUG TCONV ITER " i_conv ;
+        Fmap := UTL: Fmap :: STEP UP "PARAM" STEP AT 2 
+                STAT ABS "P-VALUE" "P-VALUE-OLD" >>TErrMax<< >>TErrAvg<<
+                COPY "P-VALUE" "P-VALUE-OLD"
+                ;
+
+        ECHO "DEBUG STAT TERR MAX" TErrMax "TERR AVG" TErrAvg ;
+        
+        IF TErrMax TErrCrit <= THEN
+            EVALUATE conv := $True_L ;
+        ENDIF ;
+        
+        IF i_conv MaxIter >= THEN
+            EVALUATE conv := $True_L ;
+	ENDIF ;
+        
+    UNTIL conv ;
+
+
+
+END: ; 
+QUIT "LIST" . 
+
+ 

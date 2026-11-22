@@ -1,0 +1,353 @@
+#!/bin/sh
+#
+# rdragon/rdonjon/rganlib must be IDENTICAL.
+#
+# Best thing is to install 'rdonjon'
+#           and to link 'ln rdonjon rdragon'
+#                       'ln rdonjon rganlib'
+#
+# author : R. Roy (96-05-03)
+# use    : execution of DONJON, DRAGON or GANLIB
+# called : { rdonjon | rdragon | rganlib } 
+#           [ -dDATE ] [ -ePath ] [ -vVERSION ] [ -nNAME ] [ -sSUFF ] 
+#           [ -pPREF ] [-l] [-T] input [ procs ] [-K] [-k]
+#
+# options: you can choose only one of the following:
+#            -dDATE    : DATE in format yymmdd for old versions
+#            -vVERSION : VERSION number for old versions
+#            -nNAME    : NAME of your exec file in $HOME/bin or true name
+#                        (default NAME=donjon for rdonjon; 
+#                                  dragon for rdragon; 
+#                                  ganlib for rganlib. ) 
+#            -eEXECPath : Execution Path
+#                         executable is  $EXECPath/bin/$System/$CODE
+#          you can add as many as you want:
+#            procs: can be a directory with CLE-2000 procedures
+#                   can be files including CLE-2000 procedures
+#
+# set -x # uncomment for debugging
+#
+System=`uname`
+if [ $System = "Linux" ] ; then
+  Processor=`uname -m`
+  echo $Processor
+  if [ $Processor = "x86_64" ] ; then
+    System="Linux64"
+  fi
+fi
+HOST=`hostname`
+EXECDATE=`date +"%y/%m/%d %H:%M:%S"`
+Thisprog="`basename $0`"
+COMMAND="$Thisprog $*"
+#DIRNAME="`dirname $0 | sed 's+/bin++'`"
+#DIRNAME=/home/nucl
+#if [ $HOST = "cookgates.recherche.polymtl.ca" -o  $HOST = "gleditsch.recherche.polymtl.ca" -o  $HOST = "meitner.recherche.polymtl.ca" -o  $HOST = "fick.recherche.polymtl.ca" -o  $HOST = "teller.recherche.polymtl.ca"  ] ; then
+#else
+## MYHOME=/gpr/xdoligez/PHELMA/DR_DJ/Version5_beta_ev3958
+MYHOME=/home/tanguy
+TMPDIR=$MYHOME/tmp 
+
+#fi
+SaveBigFile="no"
+MaxFileSize=2000000
+EXECPath=$MYHOME/Codes/Version5.1/Donjon/bin/Linux_x86_64
+#LIBRPath=$MYHOME/Libraries
+#LIBRPath=/gpr/xdoligez/PHELMA/DR_DJ/Version5_beta_ev3958/Libraries
+#EXECPath=/home/ign/DRAGONDONJONev1160/Donjon/bin/Linux_x86_64
+#LIBRPath=/home/ign/Libraries
+#PROCPath=$DIRNAME/lib/procs
+INPTPath=`pwd`
+#
+#
+EXEN="Donjon"
+CODE="donjon"
+EXST=$EXEN
+LocPath="No"
+ExtPath="No"
+ALLDIR=""
+ALLFILE=""
+INPUT="No"
+OUTNAM=""
+NICE="Yes"
+SUFFIX="+"
+PREUSR="No"
+PRCLIST="No"
+TIMER="Off"
+KeepDir="Off"
+for param in $*
+do
+	case $param in
+		-d*)	if [ $EXEN = $EXST ]; then
+				DATE="`echo $1 | cut -c 3-`"
+				EXEN=$CODE$DATE
+			else
+				echo "The exec file was changed twice."
+				exit 1
+			fi ;;
+		-v*)	if [ $EXEN = $EXST ]; then
+				VERSION="`echo $1 | cut -c 3-`"
+				EXEN=$CODE$VERSION
+			else
+				echo "The exec file was changed twice."
+				exit 1
+			fi ;;
+		-s*)	SUFFIX="`echo $1 | cut -c 3-`" ;;
+		-k*)	SaveBigFile="yes" ;;
+		-l*)	PRCLIST="Yes" ;;
+		-n*)	if [ $EXEN = $EXST ]; then
+				FXEC=`echo $1 | cut -c 3-`
+#				FXEC=${FXEC:-$CODE}
+				EXEN=$FXEC
+				LocPath="Yes"
+			else
+				echo "The exec file was changed twice."
+				exit 1
+			fi ;;
+                -e*)	TMPEPath=`echo $1 | cut -c 3-`
+                        ExtPath="Yes"
+		        TMPEXEC=$TMPEPath/bin/$System ;;
+		-p*)	PREUSR="Yes"
+			PREFIX="`echo $1 | cut -c 3-`" ;;
+		-t*)	TMPDIR="`echo $1 | cut -c 3-`" ;;
+		-T*)	TIMER="On" ;;
+		-K*)	KeepDir="On" ;;
+		-w*)	OUTNAM="`echo $1 | cut -c 3-`"
+			if [ -z "$OUTNAM" ]; then	
+				NICE="No"
+			fi ;;
+		*)	if [ -f $1 ]; then
+				if [ $INPUT = "Yes" ]; then
+					ALLFILE="$ALLFILE $1"
+				else
+					MAIN=$1 
+					INPUT="Yes"
+				fi
+			elif [ -f ${1}.x2m ]; then
+				if [ $INPUT = "Yes" ] ; then
+					ALLFILE="$ALLFILE ${1}.x2m"
+				else
+					MAIN=${1}.x2m
+					INPUT="Yes"
+				fi
+			elif [ -d $1 ]; then
+				ALLDIR="$ALLDIR $1"
+			else
+				echo "This file is not a proc:" $1
+				exit 1
+			fi ;;
+	esac
+	shift
+done
+EXEC=$EXECPath/$EXEN
+if [ $ExtPath = "Yes" ] ; then
+  EXECPath=$TMPEXEC
+  EXEC=$EXECPath/$EXEN
+elif [ $LocPath = "Yes" ] ; then
+  if [ -x $EXEN ] ; then
+    EXEC=$EXEN
+  else
+    EXECPath=$HOME/bin
+    EXEC=$EXECPath/$EXEN
+  fi
+fi
+echo "Executable =" $EXEC
+ls -l $EXEC
+#
+# check if main input files exist.
+if [ $INPUT = "Yes" ]; then
+	echo "Main input  :" $MAIN
+else
+	echo "Main input  " $MAIN "not found."
+	echo "See" $Thisprog "manual."
+	exit 1
+fi
+#
+# check if executable exists.
+if [ -x $EXEC ]; then
+	echo "Executable  :" $EXEC
+else
+	echo "Executable  " $EXEC "not found."
+	echo "See" $Thisprog "manual."
+	exit 1
+fi
+echo "Proc dir    :" $ALLDIR
+
+
+#
+# create execution directory
+#
+inum=$(od -An -N2 -i /dev/urandom | tr -d ' ')
+while [ -d "$TMPDIR/rundir$inum" ]
+do
+  inum=$(od -An -N2 -i /dev/urandom | tr -d ' ')
+done
+RUNDIR="$TMPDIR/rundir$inum"
+mkdir $RUNDIR
+echo "RunDirectory:" $RUNDIR
+echo "Submitted   :" $EXECDATE "on" $HOST
+
+
+#
+# determine the name of the main input file
+#
+NEWINP=p$$
+cp $MAIN $RUNDIR/$NEWINP
+#
+# get the proc files from directories in the ALLDIR list
+#
+for DPROC in $ALLDIR
+do
+	for FullPROC in $DPROC/*
+	do
+		if [ ! -d $FullPROC -a -f $FullPROC ]; then
+			LocPROC="`basename $FullPROC`"
+			cp  $DPROC/$LocPROC $RUNDIR/$LocPROC
+		fi
+	done
+done
+#
+# get the proc files from files in the ALLFILE list
+#
+for FullPROC in $ALLFILE
+do
+	if [ -f $FullPROC ]; then
+		LocPROC="`basename $FullPROC`"
+		if [ $PREUSR = "Yes" ]; then
+			NewPROC=`echo $LocPROC | sed s/$PREFIX//`
+		else
+			NewPROC=$LocPROC
+		fi
+		if [ -z "$NewPROC" ]; then
+			echo "File" $FullPROC "cannot be copied in" $RUNDIR
+			exit 1
+		else
+			cp $FullPROC $RUNDIR/$NewPROC
+		fi
+	fi
+done
+# 
+# link cross-section libraries for DRAGON
+# 
+if [ $CODE = dragon ]; then
+	for FullNAME in $LIBRPath/*
+	do
+		LocalNAME="`basename $FullNAME`"
+		ln -s  $FullNAME $RUNDIR/$LocalNAME
+	done
+fi
+NewEXEC=p$$e
+ln -s $EXEC $RUNDIR/$NewEXEC
+cd $RUNDIR
+#
+# keep old list of files in the directory
+#
+ls -l * >p$$o
+OUTFIL=p$$pr
+#
+# execute the code:
+#
+#ls -la
+if [ $TIMER = "On" ] ; then
+	(time $RUNDIR/$NewEXEC <$NEWINP 1>>$OUTFIL  )2>xxxtime
+	cat xxxtime 1>&2
+	cat xxxtime >>$OUTFIL
+	/bin/rm -f xxxtime
+else 
+	if [ $NICE = "Yes" ]; then
+		echo "**:     EXECUTION SUMMARY" >$OUTFIL 
+		echo "**:"                      >>$OUTFIL
+		echo "**:CMD " $COMMAND         >>$OUTFIL 
+		echo "**:USR " `whoami`         >>$OUTFIL
+		echo "**:MAC " `uname -n`       >>$OUTFIL
+		echo "**:PWD " $INPTPath        >>$OUTFIL
+		echo "**:EXEC" $EXEC            >>$OUTFIL
+		echo "**:DATE" `date`           >>$OUTFIL
+		echo "**:"                      >>$OUTFIL
+		echo "**:HELP man $Thisprog"    >>$OUTFIL
+		echo "**:"                      >>$OUTFIL
+		nice $RUNDIR/$NewEXEC <$NEWINP >>$OUTFIL
+	else
+		$RUNDIR/$NewEXEC <$NEWINP
+	fi
+fi
+/bin/rm -f $NewEXEC
+if [ -f core ]; then
+	/bin/rm -f core
+	echo "EXECUTION ERROR: core REMAININGS"
+	SUFFIX="-"
+fi
+if [ -f _DUMMY ]; then
+	/bin/rm -f _DUMMY
+	echo "EXECUTION ERROR: DUMMY REMAININGS"
+	SUFFIX="-"
+fi
+if [ -f _main001 ]; then
+  echo "EXECUTION ERROR: STAC REMAININGS"
+  SUFFIX="-"
+  NEWLIST=`ls _*` 
+  for NEWFIL in $NEWLIST
+  do
+    /bin/rm -f $NEWFIL
+  done
+fi
+if [ $NICE = "Yes" -a -f $OUTFIL ]; then
+	echo "Output file :" $MAIN$SUFFIX$OUTNAM
+	mv $OUTFIL $INPTPath/$MAIN$SUFFIX$OUTNAM
+fi
+#
+# keep new list of files in the directory
+# 
+touch xxxxx.c2m xxxxx.o2m
+NEWLIST=`ls *.c2m *.o2m` 
+for NEWFIL in $NEWLIST
+do
+  /bin/rm -f $NEWFIL
+done
+if [ $PRCLIST = "No" ] ; then 
+  touch xxxxx.l2m 
+  NEWLIST=`ls *.l2m ` 
+  for NEWFIL in $NEWLIST
+  do
+    /bin/rm -f $NEWFIL
+  done
+fi
+ls -l * >p$$n 
+NEWF=`diff -e -b p$$o p$$n | awk '{ if (NF>1) print $NF }'`
+if [ $KeepDir = "On" ]; then
+  KillRunDir="no"
+else
+  KillRunDir="yes"
+fi
+for NEWFIL in $NEWF
+do
+	if [ $NEWFIL !=  p$$o ]; then
+  Filesize=`du -k $NEWFIL | awk '{ print $1 }'`
+  keep="yes"
+  if [ $Filesize -ge $MaxFileSize  ]; then
+    if [ $SaveBigFile = "no" ]; then
+      keep="no"
+    fi
+  fi
+  if [ $keep = "yes" ]; then
+  		echo "New file   :" $MAIN$SUFFIX$NEWFIL
+  		mv $NEWFIL $INPTPath/$MAIN$SUFFIX$NEWFIL
+  else
+    KillRunDir="no"
+    echo "File       :" $NEWFIL "not transferred"
+    echo "Run directory will not be destroyed "
+  fi
+	fi
+done
+#
+# remove execution directory
+#
+echo "End of execution on" $HOST
+cd $INPTPath
+if [ $KillRunDir = "yes" ]; then
+  /bin/rm -f -r $RUNDIR
+else
+  /bin/rm -f  $RUNDIR/p$$o $RUNDIR/p$$n
+  echo "Run directory :" $RUNDIR "not destroyed "
+fi
+
+/bin/rm -f -r $RUNDIR

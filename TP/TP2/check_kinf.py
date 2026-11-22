@@ -7,7 +7,7 @@ grep -i -E '\$|infinite'  EvoAssParamCbDmodTf.x2m+ > kinf.out
 
 
 Construction de la compo
-grep -i infinity -A1 EvoAssParamCbDmodTf.x2m+MCPOMACROCbDmodTFuel.txt  | grep -v INF > kinf.txt
+grep -i infinity -A1 EvoAssParamCbDmodTf.x2m+MCPOMACROCbDmodTFuel.txt  | grep -v INF | grep -v '\-\-' > kinf.txt
 pval1 : bu
 pval2 : T-FUEL
 pval3 : Dmod
@@ -57,5 +57,5 @@ print(df)
 
 
 df.drop(['Time'], axis=1).plot(x='Bu', grid='True', title='kinfinite')
-
+plt.legend()
 plt.show()

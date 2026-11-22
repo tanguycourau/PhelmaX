@@ -1,0 +1,36 @@
+******************************************************************
+*                                                                *
+* Procedure :  SetMacroFuel.c2m                                  *
+* Purpose   :  Creation of MACROLIB object containing materials  *
+*              properties                                        *
+* Author(s) :  M. Paradis (2021)                                 *
+* Modified  :  X. Doligez(2026) for PHELMA Lectures              *
+*                                                                *
+* MacroFuel := SetMacroFuel McpoFuelMac Fmap ::                  *
+*              <<ppmB>>                                          *
+******************************************************************
+
+PARAMETER MacroFuel McpoFuelMac Fmap ::
+      ::: LINKED_LIST
+          MacroFuel McpoFuelMac Fmap ; ;
+
+*----
+*  Modules and linked_lists
+*----
+MODULE NCR: END: ;
+
+REAL ppmB ;
+:: >>ppmB<< ;
+
+*----
+*  Set MacroFuel for UOx & MOx assemblies
+*----
+MacroFuel := NCR: McpoFuelMac Fmap ::
+             EDIT 0 MACRO
+             TABLE McpoFuelMac 'UOX' 'burnup'
+             MIX 2   
+             SET 'ppmB'     <<ppmB>>  
+             ENDMIX ;
+
+END: ;
+QUIT "LIST" .

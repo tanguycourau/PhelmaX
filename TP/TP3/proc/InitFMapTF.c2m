@@ -1,0 +1,89 @@
+*******************************************************************
+*                                                                 *
+* Procedure :  InitFuelMap.c2m                                    *
+* Purpose   :  Initiate fuel-map in respect to burnup             *
+*              distribution                                       *
+*                                                                 *
+* Fmap := InitFuelMap Fmap :: <<BU_Coeur>> <<TFuel>>              *
+*                                                                 *
+*******************************************************************
+PARAMETER  Fmap :: 
+::: LINKED_LIST Fmap ; ;
+
+*----
+*  Modules and linked_lists
+*----
+MODULE     SIM: END: ;
+
+*----
+*  Set calculation options
+*----
+
+REAL BUCoeur ;
+:: >>BUCoeur<< ;
+REAL ppmB ;
+:: >>ppmB<< ;
+
+*----
+*  Set loading burnup values
+*----
+REAL Delta_BU := BUCoeur 4. / ;
+
+REAL BU1 :=  Delta_BU ;
+REAL BU2 := 2. Delta_BU * ;
+REAL BU3 := 3. Delta_BU * ;
+
+ECHO " Delta_BU = " Delta_BU ;
+ECHO " BU1 = " BU1 ;  
+ECHO " BU2 = " BU2 ; 
+ECHO " BU3 = " BU3 ; 
+
+Fmap := SIM: Fmap ::
+ EDIT 0
+ CYCLE "C0"
+ MAP
+     A   B   C   D   E   F   G   H   I   J   K   L   M   N   O
+01   |   |   |   |   |   |  SPC SPC SPC  |   |   |   |   |   |  
+02   |   |   |   |  NEW NEW NEW SPC NEW NEW NEW  |   |   |   |  
+03   |   |   |  SPC NEW SPC SPC NEW SPC SPC NEW SPC  |   |   |  
+04   |   |  SPC NEW SPC SPC SPC SPC SPC SPC SPC NEW SPC  |   |  
+05   |  NEW NEW SPC SPC SPC SPC SPC SPC SPC SPC SPC NEW NEW  |  
+06   |  NEW SPC SPC SPC SPC SPC SPC SPC SPC SPC SPC SPC NEW  |  
+07  SPC NEW SPC SPC SPC SPC SPC SPC SPC SPC SPC SPC SPC NEW SPC 
+08  SPC SPC NEW SPC SPC SPC SPC SPC SPC SPC SPC SPC NEW SPC SPC 
+09  SPC NEW SPC SPC SPC SPC SPC SPC SPC SPC SPC SPC SPC NEW SPC 
+10   |  NEW SPC SPC SPC SPC SPC SPC SPC SPC SPC SPC SPC NEW  |  
+11   |  NEW NEW SPC SPC SPC SPC SPC SPC SPC SPC SPC NEW NEW  |  
+12   |   |  SPC NEW SPC SPC SPC SPC SPC SPC SPC NEW SPC  |   |  
+13   |   |   |  SPC NEW SPC SPC NEW SPC SPC NEW SPC  |   |   |  
+14   |   |   |   |  NEW NEW NEW SPC NEW NEW NEW  |   |   |   |  
+15   |   |   |   |   |   |  SPC SPC SPC  |   |   |   |   |   |  
+  SPEC 
+  G01 I01 I15 G15 A07 O07 O09 A09  SET AVGB <<BU3>>
+  H01 O08 H15 A08  SET AVGB <<BU3>>
+  H02 N08 H14 B08  SET AVGB <<BU2>>
+  D03 L03 L13 D13 C04 M04 M12 C12  SET AVGB <<BU3>>
+  F03 J03 J13 F13 C06 M06 M10 C10  SET AVGB <<BU2>>
+  G03 I03 I13 G13 C07 M07 M09 C09  SET AVGB <<BU3>>
+  E04 K04 K12 E12 D05 L05 L11 D11  SET AVGB <<BU2>>
+  F04 J04 J12 F12 D06 L06 L10 D10  SET AVGB <<BU1>>
+  G04 I04 I12 G12 D07 L07 L09 D09  SET AVGB <<BU1>>
+  H04 L08 H12 D08  SET AVGB <<BU3>>
+  E05 K05 K11 E11  SET AVGB <<BU2>>
+  F05 J05 J11 F11 E06 K06 K10 E10  SET AVGB <<BU1>>
+  G05 I05 I11 G11 E07 K07 K09 E09  SET AVGB <<BU2>>
+  H05 K08 H11 E08  SET AVGB <<BU1>>
+  F06 J06 J10 F10  SET AVGB <<BU3>>
+  G06 I06 I10 G10 F07 J07 J09 F09  SET AVGB <<BU1>>
+  H06 J08 H10 F08  SET AVGB <<BU2>>
+  G07 I07 I09 G09  SET AVGB <<BU2>>
+  H07 I08 H09 G08  SET AVGB <<BU1>>
+  H08              SET AVGB <<BU3>>
+ ENDCYCLE 
+ 
+ SET-PARAM 'ppmB' <<ppmB>>
+;
+   
+    
+END: ;
+QUIT "LIST" .
