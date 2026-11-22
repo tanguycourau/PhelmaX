@@ -14,14 +14,14 @@
 
     LINKED_LIST GeoCalc GeoRef 
                 Track Fmap
-		McpoFuelMac
-		McpoRefl
-		MacroFuel
-		Macrotot
-		MacroRefl
-		System
-		Flux
-		STORE
+                McpoFuelMac
+                McpoRefl
+                MacroFuel
+                Macrotot
+                MacroRefl
+                System
+                Flux
+                STORE
                 ; 
 
     MODULE   TRIVAT: CRE: PSP:  DELETE: END: 
@@ -33,7 +33,7 @@
 *---------------------------------------------------------------------------
 * Options des calculs
 *---------------------------------------------------------------------------
-    STRING GeoType  := "UOX" ;       ! A transformer en "HYB" pour coeur UOX/MOX dans les seances libres 		
+    STRING GeoType  := "UOX" ;       ! A transformer en "HYB" pour coeur UOX/MOX dans les seances libres                
     REAL   BUCoeur := 45000. ;         ! BU Total du coeur en MWj/t  
     REAL ppmB := 1200.0 ;
     REAL Keff ;
@@ -64,12 +64,12 @@
     Track := TRIVAT: GeoRef :: MAXR <<MaxR>> MCFD 2 ; 
     GeoRef := DELETE: GeoRef ;  
     Fmap GeoCalc := GeoFuelMap GeoCalc :: <<Splitx>> <<Splitz>> 
-					 <<dx>> <<GeoType>> ;
-					 
+                                         <<dx>> <<GeoType>> ;
+                                         
 *---------------------------------------------------------------------------
 * Chargement des tables multiparametrees 
 *---------------------------------------------------------------------------
-      				
+                                
     MacroRefl := CRE: McpoRefl :: EDIT 0 NMIX 2  
                                   READ COMPO McpoRefl  
                                   MIX  1 'MIXREFL    1'  
